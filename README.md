@@ -4,19 +4,20 @@ A tool for differential methylation analysis.
 The needed Python scripts, Stan model files and example input and output files are stored in this GitHub repository.
 
 
-Outline
--Requirements
--Running preanalysis
--Running LuxUS analysis
--Combining results files
+## Outline
+*Requirements
+*Running preanalysis
+*Running LuxUS analysis
+*Combining results files
+*References
 
-Requirements
+## Requirements
 -Python 2.7
 -Numpy
 -PyStan
 -CmdStan (for running ADVI)
 
-Running preanalysis
+## Running preanalysis
 
 prepare_data_for_luxus_publishing.py
 usage: prepare_data_for_luxus_publishing.py [-h] -i INPUT_NAME -o
@@ -117,7 +118,7 @@ optional arguments:
   -z CYTNFILE, --cytNFile CYTNFILE
                         File name for storing the number of cytosines in each
                         window.
-Running LuxUS analysis
+## Running LuxUS analysis
 
 run_luxus.py
 
@@ -188,7 +189,7 @@ optional arguments:
                         no file name is given the computation times will not
                         be stored into a file.
                         
-Combining results files
+## Combining results files
 
 final_results.py
 
@@ -211,3 +212,5 @@ optional arguments:
                         The BF file name.
   -w WINDOW_INDEX, --window_index_file WINDOW_INDEX
                         The window index file.
+
+## References
