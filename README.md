@@ -19,7 +19,15 @@ The needed Python scripts, Stan model files and example input and output files a
 
 ## Running preanalysis
 
-prepare_data_for_luxus_publishing.py
+The script *prepare_data_for_luxus_publishing.py* can be used to prepare BS-seq data for LuxUS analysis. The input file for a BS-seq experiment with N samples in total should be a headerless tab-separated proportion table with the following format
+
+```
+<Chromosome name> <Start> <End> <Total count, sample 1> ... <Totanl count, sample N> <Methylation level, sample 1> ... <Methylation level, sample N>
+```
+The corresponding design matrix for the experiment should also be given as a headerless text file. The rows of the file correspond to the samples, which should be given in the same order with the input proportion table. The first column represents the intercept in the model, and should be set to all ones. The next columns correspond to the other covariates in the model. By default, the covariate to be tested is the second column (column 1, as the numbering starts from 0). This covariate is used for F-test used in the preanalysis filtering. This covariate is assumed to be a binary variable, although both binary and continuous variables can be tested with the LuxUS model. The variables in the design matrix should be either binary or continuous. 
+
+The following script takes as input the proportion table and design matrix, for which it performs the preananalysis step and produces input files for the *run_luxus.py* script. Each input file contains the data of one genomic window. The number of cytosines and mean coverages for each window are stored into separate text files. The information of whether a cytosine passed the preanalysis step and the index of the genomic window into which it belongs is stored into file *INSERT FILE NAME HERE*. This file is later used when combining the calculated Bayes factors and the original input file into the final result file.
+
 ```
 usage: prepare_data_for_luxus_publishing.py [-h] -i INPUT_NAME -o
                                             OUTPUT_FOLDER -d DESIGN_MATRIX
@@ -122,15 +130,17 @@ optional arguments:
 ```
 ## Running LuxUS analysis
 
-run_luxus.py
+The *run_luxus.py* is can be used to run the LuxUS analysis for the desired input data, which has first been prepared with the *prepare_data_for_LuxUS.py* script. With parameter *-a* one can choose the algorithm to be used for fitting the model parameter with Hamiltonian Monte Carlo sampling being the default option. The script loads the input data, fits the model with using the chosen model fitting method, calculates the Bayes factor and saves it into the result file. The computation time can also be saved if desired. When performing the model fitting with HMC, the standard fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for variables x and x and x can be plotted. When using ADVI for model fitting, the input files are first saved as temporal RDUMP files. Then CmdStan is called using subprocess package in Python. Before this, the Stan model should be compiled beforehand (WRITE INSTRUCTIONS FOR THIS).  
+
+The script *run_luxus.py* should be run in the same folder where the .stan file for the model is stored.
+
 
 ```
 usage: run_luxus.py [-h] -d INPUT_DATA -o OUTPUTFOLDER -i INPUTFOLDER -j
                     OUTPUTFILE -c TEST_COVARIATE [-b SIGMAB2] -a ALGORITHM
                     [-p DIAGNOSTIC_PLOTS] [-g N_GRADSAMPLES]
                     [-e N_ELBOSAMPLES] [-v N_OUTPUTSAMPLES_VI]
-                    [-m N_OUTPUTSAMPLES_HMC] [-w WINDOW_INDEX] -x SIGMAR2_FILE
-                    -y SIGMAC2_FILE -z SIGMAE2_FILE [-t TIMEFILE]
+                    [-m N_OUTPUTSAMPLES_HMC] [-w WINDOW_INDEX] [-t TIMEFILE]
 
 Runs LuxUS model for the given input data and returns a BF for the whole
 window.
@@ -176,20 +186,17 @@ optional arguments:
                         The index of the window being analysed. If value is
                         not given the BF is saved without window index into
                         the defined output file.
-  -x SIGMAR2_FILE, --sigmaR2_file SIGMAR2_FILE
-                        File for storing sigmaR2 posterior means. REMOVE FROM
-                        FINAL VERSION.
-  -y SIGMAC2_FILE, --sigmaC2_file SIGMAC2_FILE
-                        File for storing sigmaC2 posterior means. REMOVE FROM
-                        FINAL VERSION.
-  -z SIGMAE2_FILE, --sigmaE2_file SIGMAE2_FILE
-                        File for storing sigmaE2 posterior means. REMOVE FROM
-                        FINAL VERSION.
   -t TIMEFILE, --timeFile TIMEFILE
                         File name (and path) for storing computation time. If
                         no file name is given the computation times will not
                         be stored into a file.
 ```
+
+
+### Compiling Stan model with CmdStan
+
+A stan model is compiled by running *make* command for the Stan model file (.stan file) in the CmdStan folder. This produces an executable (????) file in the same folder where the original .stan file was stored. This should be the same folder where the *run_luxus.py* script is run.
+
 
 ## Combining results files
 
