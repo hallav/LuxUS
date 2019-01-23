@@ -5,21 +5,22 @@ The needed Python scripts, Stan model files and example input and output files a
 
 
 ## Outline
-*Requirements
-*Running preanalysis
-*Running LuxUS analysis
-*Combining results files
-*References
+* Requirements
+* Running preanalysis
+* Running LuxUS analysis
+* Combining results files
+* References
 
 ## Requirements
--Python 2.7
--Numpy
--PyStan
--CmdStan (for running ADVI)
+- Python 2.7
+- Numpy
+- PyStan
+- CmdStan (for running ADVI)
 
 ## Running preanalysis
 
 prepare_data_for_luxus_publishing.py
+```
 usage: prepare_data_for_luxus_publishing.py [-h] -i INPUT_NAME -o
                                             OUTPUT_FOLDER -d DESIGN_MATRIX
                                             [-w WIDTH] [-c N_CYTOSINES] -r
@@ -118,12 +119,12 @@ optional arguments:
   -z CYTNFILE, --cytNFile CYTNFILE
                         File name for storing the number of cytosines in each
                         window.
+```
 ## Running LuxUS analysis
 
 run_luxus.py
 
-
-PRINTING HELP PAGE:
+```
 usage: run_luxus.py [-h] -d INPUT_DATA -o OUTPUTFOLDER -i INPUTFOLDER -j
                     OUTPUTFILE -c TEST_COVARIATE [-b SIGMAB2] -a ALGORITHM
                     [-p DIAGNOSTIC_PLOTS] [-g N_GRADSAMPLES]
@@ -188,11 +189,12 @@ optional arguments:
                         File name (and path) for storing computation time. If
                         no file name is given the computation times will not
                         be stored into a file.
-                        
+```
+
 ## Combining results files
 
 final_results.py
-
+```
 usage: final_results_publishing.py [-h] -i INPUT_FILE [-f OUTPUT_FOLDER] -o
                                    OUTPUT_FILE -b BF_FILE -w WINDOW_INDEX
 
@@ -212,5 +214,5 @@ optional arguments:
                         The BF file name.
   -w WINDOW_INDEX, --window_index_file WINDOW_INDEX
                         The window index file.
-
+```
 ## References
