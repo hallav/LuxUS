@@ -15,7 +15,9 @@ The needed Python scripts, Stan model files and example input and output files a
 - Python 2.7
 - Numpy
 - PyStan
-- CmdStan (for running ADVI)
+- CmdStan (for running ADVI) https://github.com/stan-dev/cmdstan
+
+The versions used were: Numpy 1.14.5, PyStan 2.17.1.0, CmdStan 2.12.0.
 
 ## Running preanalysis
 
@@ -130,10 +132,13 @@ optional arguments:
 ```
 ## Running LuxUS analysis
 
-The *run_luxus.py* is can be used to run the LuxUS analysis for the desired input data, which has first been prepared with the *prepare_data_for_LuxUS.py* script. With parameter *-a* one can choose the algorithm to be used for fitting the model parameter with Hamiltonian Monte Carlo sampling being the default option. The script loads the input data, fits the model with using the chosen model fitting method, calculates the Bayes factor and saves it into the result file. The computation time can also be saved if desired. When performing the model fitting with HMC, the standard fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for variables x and x and x can be plotted. When using ADVI for model fitting, the input files are first saved as temporal RDUMP files. Then CmdStan is called using subprocess package in Python. Before this, the Stan model should be compiled beforehand (WRITE INSTRUCTIONS FOR THIS).  
+The *run_luxus.py* is can be used to run the LuxUS analysis for the desired input data, which has first been prepared with the *prepare_data_for_LuxUS.py* script. The script loads the input data, fits the model with using the chosen model fitting method, calculates the Bayes factor and saves it into the result file. The computation time can also be saved if desired.
+
+With parameter *-a* one can choose the algorithm to be used for fitting the model parameter with Hamiltonian Monte Carlo sampling being the default option. When performing the model fitting with HMC, the standard fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for variables x and x and x can be plotted. When using ADVI for model fitting, the input files are first saved as temporal [R dump files](https://pystan.readthedocs.io/en/latest/conversion.html). Then CmdStan is called using [subprocess package](https://docs.python.org/2/library/subprocess.html) in Python and temporal sample files are produced as a result. The samples are extracted from these files and used for Bayes factor calculation. After this the temporal files are removed by the script. Before running this script with ADVI chosen as the model fitting method, the Stan model should be compiled beforehand using CmdStan. This can be done by running *make* command for the Stan model file (.stan file) in the CmdStan folder. This produces an executable (????) file in the same folder where the original .stan file was stored. This should be the same folder from which the *run_luxus.py* script is run. 
 
 The script *run_luxus.py* should be run in the same folder where the .stan file for the model is stored.
 
+The script uses a precompiled Stan model if possible by pickling the Stan model. Please see the description on the [PyStan manual page](https://pystan.readthedocs.io/en/latest/avoiding_recompilation.html).
 
 ```
 usage: run_luxus.py [-h] -d INPUT_DATA -o OUTPUTFOLDER -i INPUTFOLDER -j
@@ -193,14 +198,10 @@ optional arguments:
 ```
 
 
-### Compiling Stan model with CmdStan
-
-A stan model is compiled by running *make* command for the Stan model file (.stan file) in the CmdStan folder. This produces an executable (????) file in the same folder where the original .stan file was stored. This should be the same folder where the *run_luxus.py* script is run.
-
-
 ## Combining results files
 
-final_results.py
+If desired, the script *final_results.py* can be used to combine the Bayes factor result file and the original proportion table file into a final result file. This script produces a new column, in which either the calculated Bayes factor or a "\*\" is presented for each cytosine. The needed input files are the proportion table file, which was given as an input for the *prepare_data_for_luxus.py* script, the file into which the Bayes factor values and corresponding window indices were stored and the window index file, which is an output file from the *prepare_data_for_luxus.py* script. A folder in which the resulting file should be stored should be specified.
+
 ```
 usage: final_results_publishing.py [-h] -i INPUT_FILE [-f OUTPUT_FOLDER] -o
                                    OUTPUT_FILE -b BF_FILE -w WINDOW_INDEX
