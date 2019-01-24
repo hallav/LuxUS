@@ -1,8 +1,7 @@
 # LuxUS
-A tool for differential methylation analysis.
+A tool for differential methylation analysis. The tool is based generalized linear mixed model with spatial correlation structure , which is fitted using probabilistic programming language Stan. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
 
-The needed Python scripts, Stan model files and example input and output files are stored in this GitHub repository.
-
+The needed Python scripts and Stan model files for running the tool and example input and output files are stored in this GitHub repository.
 
 ## Outline
 * Requirements
@@ -14,21 +13,27 @@ The needed Python scripts, Stan model files and example input and output files a
 ## Requirements
 - Python 2.7
 - Numpy
+- Scipy
 - PyStan
 - CmdStan (for running ADVI) https://github.com/stan-dev/cmdstan
 
-The versions used were: Numpy 1.14.5, PyStan 2.17.1.0, CmdStan 2.12.0.
+The versions used were: Numpy 1.14.5, PyStan 2.17.1.0, CmdStan 2.12.0. The tool has been tested in Linux environment.
 
 ## Running preanalysis
 
-The script *prepare_data_for_luxus_publishing.py* can be used to prepare BS-seq data for LuxUS analysis. The input file for a BS-seq experiment with N samples in total should be a headerless tab-separated proportion table with the following format
+The script *prepare_data_for_luxus_publishing.py* can be used to prepare BS-seq data for LuxUS analysis. Before LuxUS analysis the data should be aligned and the methylation proportions for each cytosine in each sample should be calculated. The input file for a BS-seq experiment with N samples in total should be a headerless tab-separated proportion table with the following format
 
 ```
 <Chromosome name> <Start> <End> <Total count, sample 1> ... <Totanl count, sample N> <Methylation level, sample 1> ... <Methylation level, sample N>
 ```
-The corresponding design matrix for the experiment should also be given as a headerless text file. The rows of the file correspond to the samples, which should be given in the same order with the input proportion table. The first column represents the intercept in the model, and should be set to all ones. The next columns correspond to the other covariates in the model. By default, the covariate to be tested is the second column (column 1, as the numbering starts from 0). This covariate is used for F-test used in the preanalysis filtering. This covariate is assumed to be a binary variable, although both binary and continuous variables can be tested with the LuxUS model. The variables in the design matrix should be either binary or continuous. 
+The proportion table should contain cytosines from one chromosome only and be sorted based on the genomic location of the cytosines. If available, the experimental parameters bisulfite conversion efficiency, incorrect bisulfite conversion efficiency and sequencing error rates should also be provided to the script.
 
-The following script takes as input the proportion table and design matrix, for which it performs the preananalysis step and produces input files for the *run_luxus.py* script. Each input file contains the data of one genomic window. The number of cytosines and mean coverages for each window are stored into separate text files. The information of whether a cytosine passed the preanalysis step and the index of the genomic window into which it belongs is stored into file *INSERT FILE NAME HERE*. This file is later used when combining the calculated Bayes factors and the original input file into the final result file.
+The corresponding design matrix for the experiment should also be given as a headerless text file. The rows of the file correspond to the samples, which should be given in the same order with the input proportion table. The first column represents the intercept in the model, and should be set to all ones. The next columns correspond to the other covariates in the model. By default, the covariate to be tested is the second column (column 1, as the numbering starts from 0). This covariate is used as a test covariate in the F-test in the preanalysis filtering step. The parameter *INSERT PARAMETER NAME* defines the p-value cutoff-value for the F-test. This covariate is assumed to be a binary variable, although both binary and continuous variables can be tested with the LuxUS model. The variables in the design matrix should be either binary or continuous.  
+
+In the preanalysis each cytosine is first evaluated separately. The cytosine has to be located at maximum in the defined window width range from the start of the window. There also has to be samples with minimum coverage of *REQUIRED_COVERAGE* at least in as many samples as defined by *N_REQUIRED_SAMPLES* in both case and control groups, which are defined by the covariate *T_COVARIATE*. The sorted cytosines are evaluated one by one, until either the maximum width of a genomic window or maximum number of cytosines *N_CYTOSINES* is reached. Then the genomic window goes through the preanalysis step. The mean coverage over the window should be at least *REQUIRED_COVERAGE* in at least as many samples as defined by *N_REQUIRED_SAMPLES* in both case and control groups, which are again defined by the covariate *T_COVARIATE*. Then the F-test is performed using the log-transformed average methylation states of the samples as data. 
+
+For the windows that pass the preanalysis step, the script produces input files for the *run_luxus.py* script. Each input file contains the data of one genomic window. The number of cytosines and mean coverages for each window are stored into separate text files. The information of whether a cytosine passed the preanalysis step and the index of the possible genomic window into which it belongs is stored into file *INSERT FILE NAME HERE*. This file is later used when combining the calculated Bayes factors and the original input file into the final result file.
+
 
 ```
 usage: prepare_data_for_luxus_publishing.py [-h] -i INPUT_NAME -o
@@ -132,11 +137,9 @@ optional arguments:
 ```
 ## Running LuxUS analysis
 
-The *run_luxus.py* is can be used to run the LuxUS analysis for the desired input data, which has first been prepared with the *prepare_data_for_LuxUS.py* script. The script loads the input data, fits the model with using the chosen model fitting method, calculates the Bayes factor and saves it into the result file. The computation time can also be saved if desired.
+The *run_luxus.py* script can be used to run the LuxUS analysis for the desired input data, which has first been prepared with the *prepare_data_for_LuxUS.py* script. The script loads the input data, fits the model with using the chosen model fitting method, calculates the Bayes factor and saves it into the result file. The computation time can also be saved if desired. As the script is run on one genomic window at a time, it is possible to parallelize the computation of Bayes factors if desired. 
 
-With parameter *-a* one can choose the algorithm to be used for fitting the model parameter with Hamiltonian Monte Carlo sampling being the default option. When performing the model fitting with HMC, the standard fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for variables x and x and x can be plotted. When using ADVI for model fitting, the input files are first saved as temporal [R dump files](https://pystan.readthedocs.io/en/latest/conversion.html). Then CmdStan is called using [subprocess package](https://docs.python.org/2/library/subprocess.html) in Python and temporal sample files are produced as a result. The samples are extracted from these files and used for Bayes factor calculation. After this the temporal files are removed by the script. Before running this script with ADVI chosen as the model fitting method, the Stan model should be compiled beforehand using CmdStan. This can be done by running *make* command for the Stan model file (.stan file) in the CmdStan folder. This produces an executable (????) file in the same folder where the original .stan file was stored. This should be the same folder from which the *run_luxus.py* script is run. 
-
-The script *run_luxus.py* should be run in the same folder where the .stan file for the model is stored.
+With parameter *-a* the algorithm to be used for fitting the model parameter can be chosen, with Hamiltonian Monte Carlo sampling being the default option. When performing model fitting with HMC, the standard Stan fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for the variance parameters for the cytosine and replicate random effects and the noise term, fixed effect coefficients and lengthscale parameter can be plotted. When using ADVI for model fitting, the input files are first saved as temporal [R dump files](https://pystan.readthedocs.io/en/latest/conversion.html). Then CmdStan is called using [subprocess package](https://docs.python.org/2/library/subprocess.html) in Python and temporal sample files are produced as a result. The samples are extracted from these files and used for Bayes factor calculation. After this the temporal files are removed by the script. Before running this script with ADVI chosen as the model fitting method, the Stan model should be built using CmdStan. This can be done by running [*make* command](https://github.com/stan-dev/cmdstan/wiki/Getting-Started-with-CmdStan) for the Stan model file (.stan file) in the CmdStan folder. The result will be stored in the same folder where the original .stan file was located. This should be the same folder from which the *run_luxus.py* script is run. 
 
 The script uses a precompiled Stan model if possible by pickling the Stan model. Please see the description on the [PyStan manual page](https://pystan.readthedocs.io/en/latest/avoiding_recompilation.html).
 
