@@ -1,5 +1,5 @@
 # LuxUS
-A tool for differential methylation analysis. The tool is based generalized linear mixed model with spatial correlation structure , which is fitted using probabilistic programming language Stan. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
+A tool for differential methylation analysis. The tool is based generalized linear mixed model with spatial correlation structure, which is fitted using probabilistic programming language Stan. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
 
 The needed Python scripts and Stan model files for running the tool and example input and output files are stored in this GitHub repository.
 
