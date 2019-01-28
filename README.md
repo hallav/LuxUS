@@ -213,8 +213,8 @@ optional arguments:
 If desired, the script *final_results.py* can be used to combine the Bayes factor result file and the original proportion table file into a final result file. This script produces a new column, in which either the calculated Bayes factor or a "\*\" is presented for each cytosine. The needed input files are the proportion table file, which was given as an input for the *prepare_data_for_luxus.py* script, the file into which the Bayes factor values and corresponding window indices were stored and the window index file, which is an output file from the *prepare_data_for_luxus.py* script. A folder in which the resulting file should be stored should be specified.
 
 ```
-usage: final_results_publishing.py [-h] -i INPUT_FILE [-f OUTPUT_FOLDER] -o
-                                   OUTPUT_FILE -b BF_FILE -w WINDOW_INDEX
+usage: final_results.py [-h] -i INPUT_FILE [-f OUTPUT_FOLDER] -o OUTPUT_FILE
+                        -b BF_FILE -w WINDOW_INDEX
 
 Generates a final results file where the calculated Bayes factors are included
 as columns into the original data file.
