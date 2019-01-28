@@ -12,19 +12,20 @@ The needed Python scripts and Stan model files for running the tool and example 
 
 ## Requirements
 - Python 2.7
-- Numpy
-- Scipy
+- NumPy
+- SciPy
+- Matplotlib
 - PyStan
-- CmdStan (for running ADVI) https://github.com/stan-dev/cmdstan
+- CmdStan (for running ADVI)numpy
 
-The versions used were: Numpy 1.14.5, PyStan 2.17.1.0, CmdStan 2.12.0. The tool has been tested in Linux environment.
+The versions used were: NumPy 1.14.5, SciPy 1.1.0, Matplotlib 2.2.2, PyStan 2.17.1.0, CmdStan 2.12.0. The tool has been tested in Linux environment.
 
 ## Running preanalysis
 
 The script *prepare_data_for_luxus_publishing.py* can be used to prepare BS-seq data for LuxUS analysis. Before LuxUS analysis the data should be aligned and the methylation proportions for each cytosine in each sample should be calculated. The input file for a BS-seq experiment with N samples in total should be a headerless tab-separated proportion table with the following format
 
 ```
-<Chromosome name> <Start> <End> <Total count, sample 1> ... <Totanl count, sample N> <Methylation level, sample 1> ... <Methylation level, sample N>
+<Chromosome name> <Start> <End> <Total count, sample 1> <Methylation level, sample 1> ... <Total count, sample N> <Methylation level, sample N>
 ```
 The proportion table should contain cytosines from one chromosome only and be sorted based on the genomic location of the cytosines. If available, the experimental parameters bisulfite conversion efficiency, incorrect bisulfite conversion efficiency and sequencing error rates should also be provided to the script.
 
