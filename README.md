@@ -37,20 +37,16 @@ For the windows that pass the preanalysis step, the script produces input files 
 
 
 ```
-usage: prepare_data_for_luxus_publishing.py [-h] -i INPUT_NAME -o
-                                            OUTPUT_FOLDER -d DESIGN_MATRIX
-                                            [-w WIDTH] [-c N_CYTOSINES] -r
-                                            N_REPLICATES [-b SIGMAB2]
-                                            [-p ALPHA_L] [-q BETA_L]
-                                            [-m ALPHA_E] [-n BETA_E]
-                                            [-k ALPHA_R] [-l BETA_R]
-                                            [-g ALPHA_C] [-f BETA_C]
-                                            [-s N_REQUIRED_SAMPLES] [-a BSEFF]
-                                            [-e BSBEFF] [-j SEQERR]
-                                            [-t T_COVARIATE]
-                                            [-u REQ_METH_DIFF]
-                                            [-v REQUIRED_COVERAGE] -y
-                                            MEANCOVFILE -z CYTNFILE
+usage: prepare_data_for_luxus.py [-h] -i INPUT_NAME -o OUTPUT_FOLDER -d
+                                 DESIGN_MATRIX [-w WIDTH] [-c N_CYTOSINES] -r
+                                 N_REPLICATES [-b SIGMAB2] [-p ALPHA_L]
+                                 [-q BETA_L] [-m ALPHA_E] [-n BETA_E]
+                                 [-k ALPHA_R] [-l BETA_R] [-g ALPHA_C]
+                                 [-f BETA_C] [-s N_REQUIRED_SAMPLES]
+                                 [-a BSEFF] [-e BSBEFF] [-j SEQERR]
+                                 [-t T_COVARIATE] -u REQ_PVAL
+                                 [-v REQUIRED_COVERAGE] [-y MEANCOVFILE]
+                                 [-z CYTNFILE]
 
 Takes in the data in text file format and then prepares it for running LuxUS.
 The data objects will be saved to the specified location.
@@ -58,7 +54,8 @@ The data objects will be saved to the specified location.
 optional arguments:
   -h, --help            show this help message and exit
   -i INPUT_NAME, --BS_data_file_name INPUT_NAME
-                        The input data file.
+                        The input data file. The input data file should
+                        contain only cytosines in one chromosome.
   -o OUTPUT_FOLDER, --output_folder OUTPUT_FOLDER
                         The output location.
   -d DESIGN_MATRIX, --design_matrix DESIGN_MATRIX
@@ -84,22 +81,22 @@ optional arguments:
                         not specified, default value 1 is used.
   -m ALPHA_E, --alpha_e ALPHA_E
                         Hyperparameter alpha for prior distribution of e. If
-                        not specified, default value 2 is used.
+                        not specified, default value 5 is used.
   -n BETA_E, --beta_e BETA_E
                         Hyperparameter beta for prior distribution of e. If
-                        not specified, default value 2 is used.
+                        not specified, default value 5 is used.
   -k ALPHA_R, --alpha_r ALPHA_R
                         Hyperparameter alpha for prior distribution of
-                        sigmaR2. If not specified, default value 2 is used.
+                        sigmaR2. If not specified, default value 98 is used.
   -l BETA_R, --beta_r BETA_R
                         Hyperparameter beta for prior distribution of sigmaR2.
-                        If not specified, default value 2 is used.
+                        If not specified, default value 143 is used.
   -g ALPHA_C, --alpha_c ALPHA_C
                         Hyperparameter alpha for prior distribution of
-                        sigmaC2. If not specified, default value 2 is used.
+                        sigmaC2. If not specified, default value 6 is used.
   -f BETA_C, --beta_c BETA_C
                         Hyperparameter beta for prior distribution of sigmaC2.
-                        If not specified, default value 2 is used.
+                        If not specified, default value 3 is used.
   -s N_REQUIRED_SAMPLES, --N_required_samples N_REQUIRED_SAMPLES
                         Number of samples (from both case and control groups)
                         each cytosine must be present for it to be included in
@@ -122,11 +119,11 @@ optional arguments:
                         covariate to be tested. Assumed to be a binary
                         covariate. Indexing starts from 0. If not specified,
                         default value 1 is used.
-  -u REQ_METH_DIFF, --required_meth_diff REQ_METH_DIFF
-                        Required p-value for the coefficient for the variable
-                        given as --test_covariate for the cytosine window to
-                        be included in the analysis. Set to 1 if no p-value
-                        restriction is desired.
+  -u REQ_PVAL, --required_pval REQ_PVAL
+                        Required maximum p-value for the coefficient for the
+                        variable given as --test_covariate for the cytosine
+                        window to be included in the analysis. Set to 1 if no
+                        p-value restriction is desired.
   -v REQUIRED_COVERAGE, --required_coverage REQUIRED_COVERAGE
                         Required average coverage over window for a replicate.
                         If not specified, default value 5 is used.
