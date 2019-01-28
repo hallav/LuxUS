@@ -143,10 +143,11 @@ The script uses a precompiled Stan model if possible by pickling the Stan model.
 
 ```
 usage: run_luxus.py [-h] -d INPUT_DATA -o OUTPUTFOLDER -i INPUTFOLDER -j
-                    OUTPUTFILE -c TEST_COVARIATE [-b SIGMAB2] -a ALGORITHM
-                    [-p DIAGNOSTIC_PLOTS] [-g N_GRADSAMPLES]
-                    [-e N_ELBOSAMPLES] [-v N_OUTPUTSAMPLES_VI]
-                    [-m N_OUTPUTSAMPLES_HMC] [-w WINDOW_INDEX] [-t TIMEFILE]
+                    OUTPUTFILE -x TEST_COVARIATE [-y TEST_COVARIATE2]
+                    [-b SIGMAB2] -a ALGORITHM [-p DIAGNOSTIC_PLOTS]
+                    [-g N_GRADSAMPLES] [-e N_ELBOSAMPLES]
+                    [-v N_OUTPUTSAMPLES_VI] [-m N_OUTPUTSAMPLES_HMC]
+                    [-c N_HMC_CHAINS] [-w WINDOW_INDEX] [-t TIMEFILE]
 
 Runs LuxUS model for the given input data and returns a BF for the whole
 window.
@@ -156,38 +157,45 @@ optional arguments:
   -d INPUT_DATA, --input_data INPUT_DATA
                         Name of the data file.
   -o OUTPUTFOLDER, --outputFolder OUTPUTFOLDER
-                        Folder where to store the results. Format
-                        /level1/level2
+                        Folder where to store the results.
   -i INPUTFOLDER, --inputFolder INPUTFOLDER
-                        Folder where the input data is stored. Format
-                        /level1/level2
+                        Folder where the input data is stored.
   -j OUTPUTFILE, --outputFile OUTPUTFILE
                         File into which the BFs are written. Will be located
                         in folder specified in -o.
-  -c TEST_COVARIATE, --test_covariate TEST_COVARIATE
+  -x TEST_COVARIATE, --test_covariate TEST_COVARIATE
                         Covariate to be tested. Give index (in design matrix)
                         starting from 0.
+  -y TEST_COVARIATE2, --test_covariate2 TEST_COVARIATE2
+                        Type 2 test: the covariate to be compared to the
+                        covariate defined by argument -x. If not provided,
+                        type 1 test will be performed. Give index (in design
+                        matrix) starting from 0.
   -b SIGMAB2, --sigmaB2 SIGMAB2
-                        Variance for B. Default value is used if not
+                        Variance for B. Default value 15 is used if not
                         specified.
   -a ALGORITHM, --algorithm ALGORITHM
-                        Give value 0 (use HMC) or 1 (use VI).
+                        Give value 0 (use HMC, default) or 1 (use VI).
   -p DIAGNOSTIC_PLOTS, --diagnostic_plots DIAGNOSTIC_PLOTS
                         Give value 0 (do not plot sample diagnostics for HMC)
                         or 1 (plot sample diagnostics for HMC). Default value
                         is 0.
   -g N_GRADSAMPLES, --N_gradsamples N_GRADSAMPLES
                         Number of gradient samples used in VI. Default value
-                        is used if not specified.
+                        10 is used if not specified.
   -e N_ELBOSAMPLES, --N_elbosamples N_ELBOSAMPLES
-                        Number of gradient samples used in VI. Default value
+                        Number of ELBO samples used in VI. Default value 200
                         is used if not specified.
   -v N_OUTPUTSAMPLES_VI, --N_outputsamples_VI N_OUTPUTSAMPLES_VI
                         Number of posterior samples used in VI. Default value
-                        is used if not specified.
+                        2000 is used if not specified.
   -m N_OUTPUTSAMPLES_HMC, --N_outputsamples_HMC N_OUTPUTSAMPLES_HMC
-                        Number of posterior samples per chain used in HMC.
-                        Default value is used if not specified.
+                        Number of posterior samples per chain used in HMC (the
+                        burn-in will be removed from this sample number).
+                        Default value 1000 is used if not specified.
+  -c N_HMC_CHAINS, --N_HMC_chains N_HMC_CHAINS
+                        Number of chains in HMC sampling. Default value 4 is
+                        used if not specified.
   -w WINDOW_INDEX, --window_index WINDOW_INDEX
                         The index of the window being analysed. If value is
                         not given the BF is saved without window index into
@@ -196,6 +204,7 @@ optional arguments:
                         File name (and path) for storing computation time. If
                         no file name is given the computation times will not
                         be stored into a file.
+
 ```
 
 
