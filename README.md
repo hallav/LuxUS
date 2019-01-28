@@ -12,12 +12,13 @@ The needed Python scripts and Stan model files for running the tool and example 
 
 ## Requirements
 - Python 2.7
-- Numpy
-- Scipy
+- NumPy
+- SciPy
+- Matplotlib
 - PyStan
-- CmdStan (for running ADVI) https://github.com/stan-dev/cmdstan
+- CmdStan (for running ADVI)numpy
 
-The versions used were: Numpy 1.14.5, PyStan 2.17.1.0, CmdStan 2.12.0. The tool has been tested in Linux environment.
+The versions used were: NumPy 1.14.5, SciPy 1.1.0, Matplotlib 2.2.2, PyStan 2.17.1.0, CmdStan 2.12.0. The tool has been tested in Linux environment.
 
 ## Running preanalysis
 
