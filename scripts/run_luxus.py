@@ -16,7 +16,7 @@ from timeit import default_timer as timer
 import subprocess
 import csv
 
-from savagedickey_spatial2_wholeWindow import calculate_savagedickey, calculate_savagedickey_kde, calculate_savagedickey_kde_window, calculate_savagedickey_kde_1d
+from savagedickey import calculate_savagedickey, calculate_savagedickey_kde, calculate_savagedickey_kde_window, calculate_savagedickey_kde_1d
 
 #Using cached Stan model if available
 def stan_cache(model_name, **kwargs):
@@ -294,8 +294,13 @@ if __name__ == '__main__':
 
         plot_file_name="%s/%s_diagnostic_plots_HMC.png"%(options.outputFolder,input_data_id)
 
+        if luxus_data['n_cytosines']==1:
+            stan_file='luxus.stan'
+        else:
+            stan_file='luxus_1cytosine.stan'
+
         print("Estimating the model parameters with HMC.")
-        BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_HMC(sigmaB2, luxus_data, 'luxus_v3_final.stan', plot_file_name, options.test_covariate, N_outputsamples_HMC,N_HMC_chains,diagnostic_plots,test_type,test_type2_cov)
+        BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_HMC(sigmaB2, luxus_data, stan_file, plot_file_name, options.test_covariate, N_outputsamples_HMC,N_HMC_chains,diagnostic_plots,test_type,test_type2_cov)
 
 
 
@@ -325,6 +330,12 @@ if __name__ == '__main__':
         else:
             diagnostic_plots=options.diagnostic_plots
 
+        if luxus_data['n_cytosines']==1:
+            stan_file="luxus"
+        else:
+       	    stan_file="luxus_1cytosine"
+
+
         plot_file_name="%s/%s_diagnostic_plots_ADVI.png"%(options.outputFolder,input_data_id)
 
 
@@ -333,7 +344,7 @@ if __name__ == '__main__':
         variational_temp_data_file="%s/TEMP_store_variational_input_%s_%s_%s_%s_%s_%s_%s.txt"%(options.outputFolder,input_data_id,currenttime[0],currenttime[1],currenttime[2],currenttime[3],currenttime[4],currenttime[5])
         variational_temp_output_file="%s/TEMP_store_variational_results_%s_%s_%s_%s_%s_%s_%s.csv"%(options.outputFolder,input_data_id,currenttime[0],currenttime[1],currenttime[2],currenttime[3],currenttime[4],currenttime[5])
 
-        BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_VI(luxus_data,"luxus_v3_final", N_gradsamples, N_elbosamples, N_outputsamples_VI, variational_temp_data_file, variational_temp_output_file, sigmaB2,diagnostic_plots,plot_file_name,N_covariates, options.test_covariate,test_type,test_type2_cov)
+        BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_VI(luxus_data,stan_file, N_gradsamples, N_elbosamples, N_outputsamples_VI, variational_temp_data_file, variational_temp_output_file, sigmaB2,diagnostic_plots,plot_file_name,N_covariates, options.test_covariate,test_type,test_type2_cov)
 
 
     if options.window_index is None:
