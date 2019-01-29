@@ -1,5 +1,5 @@
 # LuxUS
-*Lux*GLM *U*sing *S*patial correlation (LuxUS) is a tool for differential methylation analysis. The tool is based generalized linear mixed model with spatial correlation structure, which is fitted using probabilistic programming language Stan [2]. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
+*Lux*GLM *U*sing *S*patial correlation (LuxUS) is a tool for differential methylation analysis. The tool is based generalized linear mixed model with spatial correlation structure. The model parameters are fitted using probabilistic programming language Stan [2]. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
 
 The needed Python scripts and Stan model files for running the tool and example input and output files are stored in this GitHub repository.
 
@@ -144,9 +144,9 @@ This command produces a Stan input file *input_for_luxus_1.txt* (as the test dat
 
 The *run_luxus.py* script can be used to run the LuxUS analysis for the desired input data, which has first been prepared with the *prepare_data_for_LuxUS.py* script. The script loads the input data, fits the model with using the chosen model fitting method, calculates the Bayes factor and saves it into the result file. The computation time can also be saved if desired. As the script is run on one genomic window at a time, it is possible to parallelize the computation of Bayes factors if desired. 
 
-With parameter *-a* the algorithm to be used for fitting the model parameter can be chosen, with Hamiltonian Monte Carlo sampling being the default option. When performing model fitting with HMC, the standard Stan fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for the variance parameters for the cytosine and replicate random effects and the noise term, fixed effect coefficients and lengthscale parameter can be plotted. When using ADVI for model fitting, the input files are first saved as temporal [R dump files](https://pystan.readthedocs.io/en/latest/conversion.html). Then CmdStan is called using [subprocess package](https://docs.python.org/2/library/subprocess.html) in Python and temporal sample files are produced as a result. The samples are extracted from these files and used for Bayes factor calculation. After this the temporal files are removed by the script. Before running this script with ADVI chosen as the model fitting method, the Stan model should be built using CmdStan. This can be done by running [*make* command](https://github.com/stan-dev/cmdstan/wiki/Getting-Started-with-CmdStan) for the Stan model file (.stan file) in the CmdStan folder. The result will be stored in the same folder where the original .stan file was located. This should be the same folder from which the *run_luxus.py* script is run. 
+With argument *-a ALGORITHM* the algorithm to be used for fitting the model parameter can be chosen between Hamiltoanian Monte Carlo (HMC) sampling and Automatic Differentation Variational Inference (ADVI), with Hamiltonian Monte Carlo sampling being the default option. When performing model fitting with HMC, the standard Stan fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for the variance parameters for the cytosine and replicate random effects and the noise term, fixed effect coefficients and lengthscale parameter can be plotted. When using ADVI for model fitting, the input files are first saved as temporal [R dump files](https://pystan.readthedocs.io/en/latest/conversion.html). Then CmdStan is called using [subprocess package](https://docs.python.org/2/library/subprocess.html) in Python and temporal sample files are produced as a result. The samples are extracted from these files and used for Bayes factor calculation. After this the temporal files are removed by the script. Before running this script with ADVI chosen as the model fitting method, the Stan model should be built using CmdStan. This can be done by running [*make* command](https://github.com/stan-dev/cmdstan/wiki/Getting-Started-with-CmdStan) for the Stan model file (.stan file) in the CmdStan folder. The result will be stored in the same folder where the original .stan file was located. This should be the same folder from which the *run_luxus.py* script is run. 
 
-The script uses a precompiled Stan model if possible by pickling the Stan model. Please see the description on the [PyStan manual page](https://pystan.readthedocs.io/en/latest/avoiding_recompilation.html).
+The script uses a precompiled Stan model if possible by pickling the compiled Stan model after first usage. Please see the description on the [PyStan manual page](https://pystan.readthedocs.io/en/latest/avoiding_recompilation.html).
 
 ```
 usage: run_luxus.py [-h] -d INPUT_DATA -o OUTPUTFOLDER -i INPUTFOLDER -j
@@ -214,7 +214,7 @@ optional arguments:
 
 ```
 
-Continuing the analysis of the test input data set, the produced Stan input file *input_for_luxus_1.txt* can now be given as input to the *run_luxus.py* script. The following command will run LuxUS analysis on the input data with default parameters and by saving the diagnostics plot produced by Stan
+Continuing the analysis of the test input data set, the produced Stan input file *input_for_luxus_1.txt* can now be given as input to the *run_luxus.py* script. The following command will run LuxUS analysis on the input data with default parameters and by saving the diagnostics plot
 ```
 python run_luxus_publishing.py -d input_for_luxus_1.txt -o $OUTPUT_FOLDER -i $OUTPUT_FOLDER -j $OUTPUT_FILE -x 1 -p 1 -w 1
 ```
@@ -249,9 +249,9 @@ optional arguments:
 
 Again continuing the analysis of the test input data, we combine the input file and the calculated Bayes factors into a final results file with command
 ```
-python *insert rest of the command*
+python  final_results.py -i proportion_table_test_data_diff1.txt  -f $OUTPUT_FOLDER -o test_data_diff1_final_results.txt -b "$OUTPUT_FOLDER"/"$BF_FILE" -w "$OUTPUT_FOLDER"/"$INDEX_FILE"
 ```
-
+The script produces the file test_data_diff1_final_results.txt where a column containing the calculated Bayes factors (or factor in this case, as there was only one genomic window in the data) is appended to the the original proportion table. For each row in the proportion table, corresponding to one cytosine, there is either the Bayes factor of the genomic window into which the cytosine belongs to or a * if the cytosine was filtered out in the preprocessing phase. This results file can then be used and filtered according to the user's needs. 
 
 ## References
 
