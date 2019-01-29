@@ -29,12 +29,11 @@ The script *prepare_data_for_luxus_publishing.py* can be used to prepare BS-seq 
 ```
 The proportion table should contain cytosines from one chromosome only and be sorted based on the genomic location of the cytosines. If available, the experimental parameters bisulfite conversion efficiency, incorrect bisulfite conversion efficiency and sequencing error rates should also be provided to the script.
 
-The corresponding design matrix for the experiment should also be given as a headerless text file. The rows of the file correspond to the samples, which should be given in the same order with the input proportion table. The first column represents the intercept in the model, and should be set to all ones. The next columns correspond to the other covariates in the model. By default, the covariate to be tested is the second column (column 1, as the numbering starts from 0). This covariate is used as a test covariate in the F-test in the preanalysis filtering step. The parameter *INSERT PARAMETER NAME* defines the p-value cutoff-value for the F-test. This covariate is assumed to be a binary variable, although both binary and continuous variables can be tested with the LuxUS model. The variables in the design matrix should be either binary or continuous.  
+The corresponding design matrix for the experiment should also be given as a headerless text file. The rows of the file correspond to the samples, which should be given in the same order with the input proportion table. The first column represents the intercept in the model, and should be set to all ones. The next columns correspond to the other covariates in the model. By default, the covariate to be tested is the second column (column 1, as the numbering starts from 0). This covariate is used as a test covariate in the F-test in the preanalysis filtering step. The argument *-u REQ_PVAL* defines the p-value cutoff-value for the F-test. This covariate is assumed to be a binary variable, although both binary and continuous variables can be tested with the LuxUS model. The variables in the design matrix should be either binary or continuous.  
 
-In the preanalysis each cytosine is first evaluated separately. The cytosine has to be located at maximum in the defined window width range from the start of the window. There also has to be samples with minimum coverage of *REQUIRED_COVERAGE* at least in as many samples as defined by *N_REQUIRED_SAMPLES* in both case and control groups, which are defined by the covariate *T_COVARIATE*. The sorted cytosines are evaluated one by one, until either the maximum width of a genomic window or maximum number of cytosines *N_CYTOSINES* is reached. Then the genomic window goes through the preanalysis step. The mean coverage over the window should be at least *REQUIRED_COVERAGE* in at least as many samples as defined by *N_REQUIRED_SAMPLES* in both case and control groups, which are again defined by the covariate *T_COVARIATE*. Then the F-test is performed using the log-transformed average methylation states of the samples as data. 
+In the preanalysis each cytosine is first evaluated separately. The cytosine has to be located at maximum in the defined window width range from the start of the window. There also has to be samples with minimum coverage of *-v REQUIRED_COVERAGE* at least in as many samples as defined by *-s N_REQUIRED_SAMPLES* in both case and control groups, which are defined by argument *-t T_COVARIATE*. The sorted cytosines are evaluated one by one, until either the maximum width of a genomic window or maximum number of cytosines *-c N_CYTOSINES* is reached. Then the genomic window goes through the preanalysis step. The mean coverage over the window should be at least *-v REQUIRED_COVERAGE* in at least as many samples as defined by argument *-s N_REQUIRED_SAMPLES* in both case and control groups, which are again defined by argument *-t T_COVARIATE*. Then the F-test is performed using the log-transformed average methylation states of the samples as data. 
 
-For the windows that pass the preanalysis step, the script produces input files for the *run_luxus.py* script. Each input file contains the data of one genomic window. The number of cytosines and mean coverages for each window are stored into separate text files. The information of whether a cytosine passed the preanalysis step and the index of the possible genomic window into which it belongs is stored into file *INSERT FILE NAME HERE*. This file is later used when combining the calculated Bayes factors and the original input file into the final result file.
-
+For the windows that pass the preanalysis step, the script produces input files for the *run_luxus.py* script. Each input file contains the data of one genomic window. The number of cytosines and mean coverages for each window are stored into separate text files. The information of whether a cytosine passed the preanalysis step and the index of the possible genomic window into which it belongs is stored into file with name *INPUT_NAME_in_analysis_indicator.txt*, where *INPUT NAME* is the name of the proportion table file. This file is later used when combining the calculated Bayes factors and the original input file into the final results file.
 
 ```
 usage: prepare_data_for_luxus.py [-h] -i INPUT_NAME -o OUTPUT_FOLDER -d
@@ -134,11 +133,17 @@ optional arguments:
                         window.
 ```
 
-Test input data files have been provided in the *data* folder in this GitHub repository. The bash script for running the *prepare_data_for_luxus.py* script with default parameters for the test input file *proportion_table_test_data_diff1.txt* and corresponding design matrix *design_matrix_test_data_diff1.txt* could be for example the following
+Test input data files have been provided in the *data* folder in this GitHub repository. The command for running the *prepare_data_for_luxus.py* script (with default parameters and the p-value limit for the preanalysis F-test set to 0.1) for the test input file *proportion_table_test_data_diff1.txt* and corresponding design matrix *design_matrix_test_data_diff1.txt* (both stored in folder defined in $INPUT_FOLDER) could be for example the following
 ```
-python prepare_data_for_luxus.py -i proportion_table_test_data_diff1.txt -d design_matrix_test_data_diff1.txt -o $OUTPUT_FOLDER -r 12 -t 1 -y "$OUTPUT_FOLDER"/window_mean_coverage_test_data_diff1.txt -z "$OUTPUT_FOLDER"/window_number_of_cytosines_test_data_diff1.txt
+python prepare_data_for_luxus.py -i "$INPUT_FOLDER"/proportion_table_test_data_diff1.txt -d "$INPUT_FOLDER"/design_matrix_test_data_diff1.txt -o $OUTPUT_FOLDER -r 12 -t 1 -u 0.1 -y "$OUTPUT_FOLDER"/window_mean_coverage_test_data_diff1.txt -z "$OUTPUT_FOLDER"/window_number_of_cytosines_test_data_diff1.txt
 ```
-This command produces a Stan input file *input_for_luxus_1.txt* (as the test data covers only a 1000bp region, only one genomic window was found, resulting in one Stan input file), which is stored in the folder defined by *$OUTPUT_FOLDER*. The script also produces files *window_mean_coverage_test_data_diff1.txt* and *window_number_of_cytosines_test_data_diff1.txt* which contain the mean coverages for each sample (over the genomic window) and the number of cytosines in the genomic window for each genomic window that passed the preanalysis filtering phase. The test input file *proportion_table_test_data_diff0.txt* contains a test data, where no differential methylation is present and it will not pass the preanalysis filtering.
+This command produces the following output files
+- Stan input file *input_for_luxus_1.txt*. As the test data covers only 10 cytosines in a 1000bp region, only one genomic window was found, resulting in one Stan input file. The file is stored in the folder defined in *$OUTPUT_FOLDER*. 
+- Window index file *proportion_table_test_data_diff1_in_analysis_indicator.txt*, where an indicator value is stored for each cytosine. Value 0 means that the cytosine was not included in a genomic window (or the window did not pass the preanalysis phase) and other values indicate the genomic window into which the cytosine belongs to. 
+- *window_mean_coverage_test_data_diff1.txt* which contains the mean coverages for each sample (over the genomic window) for each genomic window that passed the preanalysis filtering phase. 
+- *window_number_of_cytosines_test_data_diff1.txt* which contains the number of cytosines in the genomic window for each genomic window that passed the preanalysis filtering phase. 
+
+The test input file *proportion_table_test_data_diff0.txt* contains a test data, where no differential methylation is present and it will not pass the preanalysis filtering.
 
 ## Running LuxUS analysis
 
@@ -214,16 +219,16 @@ optional arguments:
 
 ```
 
-Continuing the analysis of the test input data set, the produced Stan input file *input_for_luxus_1.txt* can now be given as input to the *run_luxus.py* script. The following command will run LuxUS analysis on the input data with default parameters and by saving the diagnostics plot
+Continuing the analysis of the test input data set, the produced Stan input file *input_for_luxus_1.txt* can now be given as input to the *run_luxus.py* script. The following command will run LuxUS analysis (with type 1 test) on the input data with default parameters and by saving the diagnostics plot
 ```
-python run_luxus_publishing.py -d input_for_luxus_1.txt -o $OUTPUT_FOLDER -i $OUTPUT_FOLDER -j $OUTPUT_FILE -x 1 -p 1 -w 1
+python run_luxus.py -d input_for_luxus_1.txt -o $OUTPUT_FOLDER -i $OUTPUT_FOLDER -j test_data_diff1_result.txt -x 1 -p 1 -w 1
 ```
-This will produce an output file *insert file name* (stored in folder defined by argument *-o*), where the computed Bayes factor for the input data is stored with the window index defined by argument *-w*. The diagnostics plot *insert_file_name* made with Stan is also saved in the same folder.
+This will produce an output file *test_data_diff1_result.txt* (stored in folder defined by argument *-o OUTPUTFOLDER*), where the computed Bayes factor for the input data is stored along with the window index defined by argument *-w WINDOW_INDEX*. The diagnostics plot *input_for_luxus_1_diagnostic_plots_HMC.png* is also saved in the same folder. Input file name (the Stan input file) should be given as argument *-d INPUT_DATA* and the input file folder as argument *-i INPUTFOLDER*. 
 
  
 ## Combining results files
 
-If desired, the script *final_results.py* can be used to combine the Bayes factor result file and the original proportion table file into a final result file. This script produces a new column, in which either the calculated Bayes factor or a "\*\" is presented for each cytosine. The needed input files are the proportion table file, which was given as an input for the *prepare_data_for_luxus.py* script, the file into which the Bayes factor values and corresponding window indices were stored and the window index file, which is an output file from the *prepare_data_for_luxus.py* script. A folder in which the resulting file should be stored should be specified.
+If desired, the script *final_results.py* can be used to combine the Bayes factor result file and the original proportion table file into a final result file. This script produces a new column, in which either the calculated Bayes factor or a "\*\" is presented for each cytosine. The needed input files are the proportion table file, which was given as an input for the *prepare_data_for_luxus.py* script, the file into which the Bayes factor values and corresponding window indices were stored and the window index file, which is an output file from the *prepare_data_for_luxus.py* script. A folder in which the resulting file should be stored should be specified. The results file can then be used and filtered according to the user's needs. 
 
 ```
 usage: final_results.py [-h] -i INPUT_FILE [-f OUTPUT_FOLDER] -o OUTPUT_FILE
@@ -247,11 +252,11 @@ optional arguments:
                         The window index file.
 ```
 
-Again continuing the analysis of the test input data, we combine the input file and the calculated Bayes factors into a final results file with command
+Again, continuing the analysis of the test input data, we combine the input file and the calculated Bayes factors into a final results file with command
 ```
-python  final_results.py -i proportion_table_test_data_diff1.txt  -f $OUTPUT_FOLDER -o test_data_diff1_final_results.txt -b "$OUTPUT_FOLDER"/"$BF_FILE" -w "$OUTPUT_FOLDER"/"$INDEX_FILE"
+python  final_results.py -i "$INPUT_FOLDER"/proportion_table_test_data_diff1.txt  -f $OUTPUT_FOLDER -o test_data_diff1_final_results.txt -b "$OUTPUT_FOLDER"/test_data_diff1_result.txt -w "$OUTPUT_FOLDER"/proportion_table_test_data_diff1_in_analysis_indicator.txt
 ```
-The script produces the file test_data_diff1_final_results.txt where a column containing the calculated Bayes factors (or factor in this case, as there was only one genomic window in the data) is appended to the the original proportion table. For each row in the proportion table, corresponding to one cytosine, there is either the Bayes factor of the genomic window into which the cytosine belongs to or a * if the cytosine was filtered out in the preprocessing phase. This results file can then be used and filtered according to the user's needs. 
+The script produces the file *test_data_diff1_final_results.txt*. 
 
 ## References
 
