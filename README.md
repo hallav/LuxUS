@@ -1,5 +1,5 @@
 # LuxUS
-A tool for differential methylation analysis. The tool is based generalized linear mixed model with spatial correlation structure, which is fitted using probabilistic programming language Stan. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
+*Lux*GLM *U*sing *S*patial correlation (LuxUS) is a tool for differential methylation analysis. The tool is based generalized linear mixed model with spatial correlation structure, which is fitted using probabilistic programming language Stan [2]. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
 
 The needed Python scripts and Stan model files for running the tool and example input and output files are stored in this GitHub repository.
 
@@ -15,8 +15,8 @@ The needed Python scripts and Stan model files for running the tool and example 
 - NumPy
 - SciPy
 - Matplotlib
-- PyStan
-- CmdStan (for running ADVI)numpy
+- PyStan [3]
+- CmdStan [4] (for running ADVI)
 
 The versions used were: NumPy 1.14.5, SciPy 1.1.0, Matplotlib 2.2.2, PyStan 2.17.1.0, CmdStan 2.12.0. The tool has been tested in Linux environment.
 
@@ -133,6 +133,13 @@ optional arguments:
                         File name for storing the number of cytosines in each
                         window.
 ```
+
+Test input data files have been provided in the *data* folder in this GitHub repository. The bash script for running the *prepare_data_for_luxus.py* script with default parameters for the test input file *proportion_table_test_data_diff1.txt* and corresponding design matrix *design_matrix_test_data_diff1.txt* could be for example the following
+```
+python prepare_data_for_luxus.py -i proportion_table_test_data_diff1.txt -d design_matrix_test_data_diff1.txt -o $OUTPUT_FOLDER -r 12 -t 1 -y "$OUTPUT_FOLDER"/window_mean_coverage_test_data_diff1.txt -z "$OUTPUT_FOLDER"/window_number_of_cytosines_test_data_diff1.txt
+```
+This command produces a Stan input file *input_for_luxus_1.txt* (as the test data covers only a 1000bp region, only one genomic window was found, resulting in one Stan input file), which is stored in the folder defined by *$OUTPUT_FOLDER*. The script also produces files *window_mean_coverage_test_data_diff1.txt* and *window_number_of_cytosines_test_data_diff1.txt* which contain the mean coverages for each sample (over the genomic window) and the number of cytosines in the genomic window for each genomic window that passed the preanalysis filtering phase. The test input file *proportion_table_test_data_diff0.txt* contains a test data, where no differential methylation is present and it will not pass the preanalysis filtering.
+
 ## Running LuxUS analysis
 
 The *run_luxus.py* script can be used to run the LuxUS analysis for the desired input data, which has first been prepared with the *prepare_data_for_LuxUS.py* script. The script loads the input data, fits the model with using the chosen model fitting method, calculates the Bayes factor and saves it into the result file. The computation time can also be saved if desired. As the script is run on one genomic window at a time, it is possible to parallelize the computation of Bayes factors if desired. 
@@ -207,7 +214,13 @@ optional arguments:
 
 ```
 
+Continuing the analysis of the test input data set, the produced Stan input file *input_for_luxus_1.txt* can now be given as input to the *run_luxus.py* script. The following command will run LuxUS analysis on the input data with default parameters and by saving the diagnostics plot produced by Stan
+```
+python run_luxus_publishing.py -d input_for_luxus_1.txt -o $OUTPUT_FOLDER -i $OUTPUT_FOLDER -j $OUTPUT_FILE -x 1 -p 1 -w 1
+```
+This will produce an output file *insert file name* (stored in folder defined by argument *-o*), where the computed Bayes factor for the input data is stored with the window index defined by argument *-w*. The diagnostics plot *insert_file_name* made with Stan is also saved in the same folder.
 
+ 
 ## Combining results files
 
 If desired, the script *final_results.py* can be used to combine the Bayes factor result file and the original proportion table file into a final result file. This script produces a new column, in which either the calculated Bayes factor or a "\*\" is presented for each cytosine. The needed input files are the proportion table file, which was given as an input for the *prepare_data_for_luxus.py* script, the file into which the Bayes factor values and corresponding window indices were stored and the window index file, which is an output file from the *prepare_data_for_luxus.py* script. A folder in which the resulting file should be stored should be specified.
@@ -233,4 +246,20 @@ optional arguments:
   -w WINDOW_INDEX, --window_index_file WINDOW_INDEX
                         The window index file.
 ```
+
+Again continuing the analysis of the test input data, we combine the input file and the calculated Bayes factors into a final results file with command
+```
+python *insert rest of the command*
+```
+
+
 ## References
+
+[1] Äijö, T., Yue, X., Rao, A., Lähdesmäki, H (2016) LuxGLM: a probabilistic covariate model for quantification of DNA methylation modifications with complex experimental designs. *Bioinformatics*, 32(17), i511-i519.
+
+[2] Carpenter, B., Gelman, A., Hoffman,M. D., Lee, D., Goodrich, B., Betancourt, M., Brubaker, M., Guo, J., Li, P., Riddell, A. (2017) Stan: A probabilistic programming language. *Journal of Statistical Software*, 76(1).
+
+[3] Stan Development Team (2018) CmdStan: the command-line interface to Stan, Version 2.18.0.   http://mc-stan.org
+
+[4] Stan Development Team (2017) PyStan: the Python interface to Stan, Version 2.16.0.0.   http://mc-stan.org
+
