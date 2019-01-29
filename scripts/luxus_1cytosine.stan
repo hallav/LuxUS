@@ -1,33 +1,21 @@
 data {
-  //Third version of LuxUS, version for one cytosine. Final version: removed unnecessary lines.
-
-  //Dimensions
   int<lower=1> n_replicates; // number of replicates for each cytosine, name is kept compact
   int<lower=1> n_predictors; // number of predictors
 
-  //Experimental parameters (check dimensions! should be a matrix/longer vector as there are multiple cytosines)
   real<lower=0,upper=1> bsEff[n_replicates];
   real<lower=0,upper=1> bsBEff[n_replicates];
   real<lower=0,upper=1> seqErr[n_replicates];
 
-  //The total number of reads and number of reads that are C
   int<lower=0> bsC[n_replicates];
   int<lower=0> bsTot[n_replicates];
 
-  //Design matrix X consists of block matrices, each representing the X matrix for individual cytosine. Rest of the matrix is zeros.
   matrix[n_replicates, n_predictors] X;
 
-  //Indicator vector for block effect: replicate
-  //int Z_R[n_replicates];
-
-  //Fixed variance parameter for the coefficients vector B
   real<lower=0> sigmaB2;
 
-  // prior for sigmaE2
   real<lower=0> alpha;
   real<lower=0> beta;
 
-  //prior for sigmaR2
   real<lower=0> alphaR;
   real<lower=0> betaR;
 
@@ -55,7 +43,6 @@ transformed parameters {
   }
 
 
-  //The softmax function must be changed into logit function (or something)
   for (i in 1:n_replicates){
     //same as sigmoid function
     theta[i] = inv_logit(Y[i]);
