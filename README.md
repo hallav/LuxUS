@@ -37,20 +37,16 @@ For the windows that pass the preanalysis step, the script produces input files 
 
 
 ```
-usage: prepare_data_for_luxus_publishing.py [-h] -i INPUT_NAME -o
-                                            OUTPUT_FOLDER -d DESIGN_MATRIX
-                                            [-w WIDTH] [-c N_CYTOSINES] -r
-                                            N_REPLICATES [-b SIGMAB2]
-                                            [-p ALPHA_L] [-q BETA_L]
-                                            [-m ALPHA_E] [-n BETA_E]
-                                            [-k ALPHA_R] [-l BETA_R]
-                                            [-g ALPHA_C] [-f BETA_C]
-                                            [-s N_REQUIRED_SAMPLES] [-a BSEFF]
-                                            [-e BSBEFF] [-j SEQERR]
-                                            [-t T_COVARIATE]
-                                            [-u REQ_METH_DIFF]
-                                            [-v REQUIRED_COVERAGE] -y
-                                            MEANCOVFILE -z CYTNFILE
+usage: prepare_data_for_luxus.py [-h] -i INPUT_NAME -o OUTPUT_FOLDER -d
+                                 DESIGN_MATRIX [-w WIDTH] [-c N_CYTOSINES] -r
+                                 N_REPLICATES [-b SIGMAB2] [-p ALPHA_L]
+                                 [-q BETA_L] [-m ALPHA_E] [-n BETA_E]
+                                 [-k ALPHA_R] [-l BETA_R] [-g ALPHA_C]
+                                 [-f BETA_C] [-s N_REQUIRED_SAMPLES]
+                                 [-a BSEFF] [-e BSBEFF] [-j SEQERR]
+                                 [-t T_COVARIATE] -u REQ_PVAL
+                                 [-v REQUIRED_COVERAGE] [-y MEANCOVFILE]
+                                 [-z CYTNFILE]
 
 Takes in the data in text file format and then prepares it for running LuxUS.
 The data objects will be saved to the specified location.
@@ -58,7 +54,8 @@ The data objects will be saved to the specified location.
 optional arguments:
   -h, --help            show this help message and exit
   -i INPUT_NAME, --BS_data_file_name INPUT_NAME
-                        The input data file.
+                        The input data file. The input data file should
+                        contain only cytosines in one chromosome.
   -o OUTPUT_FOLDER, --output_folder OUTPUT_FOLDER
                         The output location.
   -d DESIGN_MATRIX, --design_matrix DESIGN_MATRIX
@@ -84,22 +81,22 @@ optional arguments:
                         not specified, default value 1 is used.
   -m ALPHA_E, --alpha_e ALPHA_E
                         Hyperparameter alpha for prior distribution of e. If
-                        not specified, default value 2 is used.
+                        not specified, default value 5 is used.
   -n BETA_E, --beta_e BETA_E
                         Hyperparameter beta for prior distribution of e. If
-                        not specified, default value 2 is used.
+                        not specified, default value 5 is used.
   -k ALPHA_R, --alpha_r ALPHA_R
                         Hyperparameter alpha for prior distribution of
-                        sigmaR2. If not specified, default value 2 is used.
+                        sigmaR2. If not specified, default value 98 is used.
   -l BETA_R, --beta_r BETA_R
                         Hyperparameter beta for prior distribution of sigmaR2.
-                        If not specified, default value 2 is used.
+                        If not specified, default value 143 is used.
   -g ALPHA_C, --alpha_c ALPHA_C
                         Hyperparameter alpha for prior distribution of
-                        sigmaC2. If not specified, default value 2 is used.
+                        sigmaC2. If not specified, default value 6 is used.
   -f BETA_C, --beta_c BETA_C
                         Hyperparameter beta for prior distribution of sigmaC2.
-                        If not specified, default value 2 is used.
+                        If not specified, default value 3 is used.
   -s N_REQUIRED_SAMPLES, --N_required_samples N_REQUIRED_SAMPLES
                         Number of samples (from both case and control groups)
                         each cytosine must be present for it to be included in
@@ -122,11 +119,11 @@ optional arguments:
                         covariate to be tested. Assumed to be a binary
                         covariate. Indexing starts from 0. If not specified,
                         default value 1 is used.
-  -u REQ_METH_DIFF, --required_meth_diff REQ_METH_DIFF
-                        Required p-value for the coefficient for the variable
-                        given as --test_covariate for the cytosine window to
-                        be included in the analysis. Set to 1 if no p-value
-                        restriction is desired.
+  -u REQ_PVAL, --required_pval REQ_PVAL
+                        Required maximum p-value for the coefficient for the
+                        variable given as --test_covariate for the cytosine
+                        window to be included in the analysis. Set to 1 if no
+                        p-value restriction is desired.
   -v REQUIRED_COVERAGE, --required_coverage REQUIRED_COVERAGE
                         Required average coverage over window for a replicate.
                         If not specified, default value 5 is used.
@@ -146,10 +143,11 @@ The script uses a precompiled Stan model if possible by pickling the Stan model.
 
 ```
 usage: run_luxus.py [-h] -d INPUT_DATA -o OUTPUTFOLDER -i INPUTFOLDER -j
-                    OUTPUTFILE -c TEST_COVARIATE [-b SIGMAB2] -a ALGORITHM
-                    [-p DIAGNOSTIC_PLOTS] [-g N_GRADSAMPLES]
-                    [-e N_ELBOSAMPLES] [-v N_OUTPUTSAMPLES_VI]
-                    [-m N_OUTPUTSAMPLES_HMC] [-w WINDOW_INDEX] [-t TIMEFILE]
+                    OUTPUTFILE -x TEST_COVARIATE [-y TEST_COVARIATE2]
+                    [-b SIGMAB2] -a ALGORITHM [-p DIAGNOSTIC_PLOTS]
+                    [-g N_GRADSAMPLES] [-e N_ELBOSAMPLES]
+                    [-v N_OUTPUTSAMPLES_VI] [-m N_OUTPUTSAMPLES_HMC]
+                    [-c N_HMC_CHAINS] [-w WINDOW_INDEX] [-t TIMEFILE]
 
 Runs LuxUS model for the given input data and returns a BF for the whole
 window.
@@ -159,38 +157,45 @@ optional arguments:
   -d INPUT_DATA, --input_data INPUT_DATA
                         Name of the data file.
   -o OUTPUTFOLDER, --outputFolder OUTPUTFOLDER
-                        Folder where to store the results. Format
-                        /level1/level2
+                        Folder where to store the results.
   -i INPUTFOLDER, --inputFolder INPUTFOLDER
-                        Folder where the input data is stored. Format
-                        /level1/level2
+                        Folder where the input data is stored.
   -j OUTPUTFILE, --outputFile OUTPUTFILE
                         File into which the BFs are written. Will be located
                         in folder specified in -o.
-  -c TEST_COVARIATE, --test_covariate TEST_COVARIATE
+  -x TEST_COVARIATE, --test_covariate TEST_COVARIATE
                         Covariate to be tested. Give index (in design matrix)
                         starting from 0.
+  -y TEST_COVARIATE2, --test_covariate2 TEST_COVARIATE2
+                        Type 2 test: the covariate to be compared to the
+                        covariate defined by argument -x. If not provided,
+                        type 1 test will be performed. Give index (in design
+                        matrix) starting from 0.
   -b SIGMAB2, --sigmaB2 SIGMAB2
-                        Variance for B. Default value is used if not
+                        Variance for B. Default value 15 is used if not
                         specified.
   -a ALGORITHM, --algorithm ALGORITHM
-                        Give value 0 (use HMC) or 1 (use VI).
+                        Give value 0 (use HMC, default) or 1 (use VI).
   -p DIAGNOSTIC_PLOTS, --diagnostic_plots DIAGNOSTIC_PLOTS
                         Give value 0 (do not plot sample diagnostics for HMC)
                         or 1 (plot sample diagnostics for HMC). Default value
                         is 0.
   -g N_GRADSAMPLES, --N_gradsamples N_GRADSAMPLES
                         Number of gradient samples used in VI. Default value
-                        is used if not specified.
+                        10 is used if not specified.
   -e N_ELBOSAMPLES, --N_elbosamples N_ELBOSAMPLES
-                        Number of gradient samples used in VI. Default value
+                        Number of ELBO samples used in VI. Default value 200
                         is used if not specified.
   -v N_OUTPUTSAMPLES_VI, --N_outputsamples_VI N_OUTPUTSAMPLES_VI
                         Number of posterior samples used in VI. Default value
-                        is used if not specified.
+                        2000 is used if not specified.
   -m N_OUTPUTSAMPLES_HMC, --N_outputsamples_HMC N_OUTPUTSAMPLES_HMC
-                        Number of posterior samples per chain used in HMC.
-                        Default value is used if not specified.
+                        Number of posterior samples per chain used in HMC (the
+                        burn-in will be removed from this sample number).
+                        Default value 1000 is used if not specified.
+  -c N_HMC_CHAINS, --N_HMC_chains N_HMC_CHAINS
+                        Number of chains in HMC sampling. Default value 4 is
+                        used if not specified.
   -w WINDOW_INDEX, --window_index WINDOW_INDEX
                         The index of the window being analysed. If value is
                         not given the BF is saved without window index into
@@ -199,6 +204,7 @@ optional arguments:
                         File name (and path) for storing computation time. If
                         no file name is given the computation times will not
                         be stored into a file.
+
 ```
 
 
@@ -207,8 +213,8 @@ optional arguments:
 If desired, the script *final_results.py* can be used to combine the Bayes factor result file and the original proportion table file into a final result file. This script produces a new column, in which either the calculated Bayes factor or a "\*\" is presented for each cytosine. The needed input files are the proportion table file, which was given as an input for the *prepare_data_for_luxus.py* script, the file into which the Bayes factor values and corresponding window indices were stored and the window index file, which is an output file from the *prepare_data_for_luxus.py* script. A folder in which the resulting file should be stored should be specified.
 
 ```
-usage: final_results_publishing.py [-h] -i INPUT_FILE [-f OUTPUT_FOLDER] -o
-                                   OUTPUT_FILE -b BF_FILE -w WINDOW_INDEX
+usage: final_results.py [-h] -i INPUT_FILE [-f OUTPUT_FOLDER] -o OUTPUT_FILE
+                        -b BF_FILE -w WINDOW_INDEX
 
 Generates a final results file where the calculated Bayes factors are included
 as columns into the original data file.
