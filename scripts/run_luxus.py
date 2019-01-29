@@ -224,7 +224,7 @@ if __name__ == '__main__':
     parser.add_argument('-x','--test_covariate',action='store',dest='test_covariate',type=int,required=True,help='Covariate to be tested. Give index (in design matrix) starting from 0.')
     parser.add_argument('-y','--test_covariate2',action='store',dest='test_covariate2',type=int,required=False,help='Type 2 test: the covariate to be compared to the covariate defined by argument -x. If not provided, type 1 test will be performed. Give index (in design matrix) starting from 0.')
     parser.add_argument('-b','--sigmaB2',action='store',dest='sigmaB2',type=float,required=False,help="Variance for B. Default value %s is used if not specified."%(default_sigmaB2))
-    parser.add_argument('-a','--algorithm',action='store',dest='algorithm',type=int,required=True,help='Give value 0 (use HMC, default) or 1 (use VI).')
+    parser.add_argument('-a','--algorithm',action='store',dest='algorithm',type=int,required=False,help='Give value 0 (use HMC, default) or 1 (use VI).')
     parser.add_argument('-p','--diagnostic_plots',action='store',dest='diagnostic_plots',type=int,required=False,help="Give value 0 (do not plot sample diagnostics for HMC) or 1 (plot sample diagnostics for HMC). Default value is %s."%(default_diagnostic_plots))
     parser.add_argument('-g','--N_gradsamples',action='store',dest='N_gradsamples',type=int,required=False,help="Number of gradient samples used in VI. Default value %s is used if not specified."%(default_N_gradsamples))
     parser.add_argument('-e','--N_elbosamples',action='store',dest='N_elbosamples',type=int,required=False,help="Number of ELBO samples used in VI. Default value %s is used if not specified."%(default_N_elbosamples))
@@ -294,7 +294,7 @@ if __name__ == '__main__':
 
         plot_file_name="%s/%s_diagnostic_plots_HMC.png"%(options.outputFolder,input_data_id)
 
-        if luxus_data['n_cytosines']==1:
+        if luxus_data['n_cytosines']>1:
             stan_file='luxus.stan'
         else:
             stan_file='luxus_1cytosine.stan'
@@ -334,7 +334,6 @@ if __name__ == '__main__':
             stan_file="luxus"
         else:
        	    stan_file="luxus_1cytosine"
-
 
         plot_file_name="%s/%s_diagnostic_plots_ADVI.png"%(options.outputFolder,input_data_id)
 

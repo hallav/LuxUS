@@ -26,14 +26,20 @@ if __name__ == '__main__':
 
     BF=numpy.loadtxt(options.BF_FILE)
 
-    BF_sorted=BF[BF[:,1].argsort()]
+    if BF.ndim==1:
+        BF_sorted=BF
+    else:
+        BF_sorted=BF[BF[:,1].argsort()]
 
     BF_vector_for_output=numpy.chararray(len(window_index),itemsize=100)
 
     for i in range(0,len(window_index)):
 
             if window_index[i]!=0:
-                BF_vector_for_output[i]=BF_sorted[int(window_index[i])-1][0]
+                if BF.ndim==1:
+                    BF_vector_for_output[i]=BF_sorted[0]
+                else:
+                    BF_vector_for_output[i]=BF_sorted[int(window_index[i])-1][0]
             else:
                 BF_vector_for_output[i]="*"
 
