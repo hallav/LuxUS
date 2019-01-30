@@ -345,7 +345,7 @@ if __name__ == '__main__':
         if INCLUDED_IN_ANALYSIS_WINDOW_SAVED==1:
             print("There were no genomic windows that passed the preanalysis phase. Number of cytosines in each window is not saved.")
         else:
-            numpy.savetxt("%s"%(options.cytNFile),number_of_cytosines_in_window[0:INCLUDED_IN_ANALYSIS_WINDOW_SAVED],fmt='%10.1f')
+            numpy.savetxt("%s"%(options.cytNFile),number_of_cytosines_in_window[0:(INCLUDED_IN_ANALYSIS_WINDOW_SAVED-1)],fmt='%10.1f')
     
     if  options.meanCovFile is None:
         print("meanCovFile was not specified, the mean coverages for each sample in each genomic window is not stored into a text file.")
@@ -353,5 +353,5 @@ if __name__ == '__main__':
         if INCLUDED_IN_ANALYSIS_WINDOW_SAVED==1:
             print("There were no genomic windows that passed the preanalysis phase. Mean coverage for each window is not saved.")
         else:
-            numpy.savetxt("%s"%(options.meanCovFile),mean_coverage_in_window[0:INCLUDED_IN_ANALYSIS_WINDOW_SAVED,:],fmt='%10.5f')
+            numpy.savetxt("%s"%(options.meanCovFile),mean_coverage_in_window[0:(INCLUDED_IN_ANALYSIS_WINDOW_SAVED-1),:],fmt='%10.5f')
     
