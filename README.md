@@ -258,6 +258,94 @@ python  final_results.py -i "$INPUT_FOLDER"/proportion_table_test_data_diff1.txt
 ```
 The script produces the file *test_data_diff1_final_results.txt*. 
 
+
+## Simulating data from the LuxUS model
+
+This command creates *-n N_DATASETS* datasets with differential methylation and *-n N_DATASETS* with no differential methylation between the case and control samples, each with *-c N_CYTOSINES* cytosines in them. The locations for the cytosines are generated randomly from 1 to *-w WIDTH*. The simulation function uses experimental design with an intercept term and case/control indicator variable, and the coefficients *b* are defined using parameter *-m MEAN_B*. The example command would create data with total read count *-q READS* for every cytosine. The number of samples simulated would be 6 + 6 (case replicates + control replicates), if 6 is given as parameter *-r REPLICATES*. The script saves the generated data sets to the folder defined by *-f FOLDER*. The user can define the formats in which the data is saved by using parameters *-x SAVE_LUXUS*, *-y SAVE_PROPORTION_TABLE* and *-z SAVE_LUXUS_SEP*. When specifying *-x 1* and/or *-z 1*, the data is saved in a format that can be given as input to the LuxUS Stan model. The parameter *-j SIGMAB2_STAN* defines the variance of the coefficients *b* used in the LuxUS analysis. If the data is saved only in proportion table format (*-x 0 -y 1 -z 0*), the parameter *-j* is not needed and arbitrary value can be given as input to the parameter. Defining *-z 1* saves data for every cytosine separately in a format that can be used with LuxUS Stan model.
+
+```
+usage: simulate_data_LuxUS.py [-h] -e SIGMAE2 -q READS -r REPLICATES -c
+                              N_CYTOSINES -l L -w WIDTH -n N_DATASETS -f
+                              FOLDER -g ID -v SIGMAB2 -d SIGMAR2 -a SIGMAC2 -m
+                              MEAN_B -j SIGMAB2_STAN -x SAVE_LUXUS -y
+                              SAVE_PROPORTION_TABLE -z SAVE_LUXUS_SEP
+
+Simulates bisulphite sequencing data from the LuxUS model.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -e SIGMAE2, --sigmae2 SIGMAE2
+                        Variance for residual term e.
+  -q READS, --reads READS
+                        Number of BS calls i.e. (total) reads.
+  -r REPLICATES, --replicates REPLICATES
+                        Number of replicates for cases and controls, the total
+                        number of samples will be 2x replicates.
+  -c N_CYTOSINES, --cytosines N_CYTOSINES
+                        Number of cytosines.
+  -l L, --lengthscale L
+                        Lengthscale parameter for covariance matrix for the
+                        simulations.
+  -w WIDTH, --width WIDTH
+                        Width of the genomic region where the N_cytosines lie
+                        (in basepairs).
+  -n N_DATASETS, --datasets N_DATASETS
+                        Number of datasets to be created for both cases (no
+                        differential methylation, differential methylation).
+                        Total number of resulting datasets is 2xN_datasets.
+  -f FOLDER, --folder FOLDER
+                        Folder where to store the generated data files. Format
+                        /level1/level2
+  -g ID, --ID ID        Identifier used in the resulting file names.
+  -v SIGMAB2, --sigmaB2 SIGMAB2
+                        Variance for B, which is inserted into covariance
+                        matrix diagonal (SigmaB). Used for simulations.
+  -d SIGMAR2, --sigmar2 SIGMAR2
+                        sigma_r2 used for simulations.
+  -a SIGMAC2, --sigmac2 SIGMAC2
+                        sigma_c2 used for simulations.
+  -m MEAN_B, --mean_B MEAN_B
+                        Mean for B0 (coefficient for the intercept term) and
+                        value for B1 (coefficient for case/control covariate)
+                        for the cases with differential methylation. Should be
+                        given as string in format [B1, B2]
+  -j SIGMAB2_STAN, --sigmaB2_stan SIGMAB2_STAN
+                        Variance for B, the value which will be used in LuxUS
+                        analysis. (Can be different from what is used for
+                        simulations).
+  -x SAVE_LUXUS, --save_LuxUS SAVE_LUXUS
+                        0 or 1 indicating whether the seimulated data should
+                        be saved in a format supported by LuxUS.
+  -y SAVE_PROPORTION_TABLE, --save_proportion_table SAVE_PROPORTION_TABLE
+                        0 or 1 indicating whether the seimulated data should
+                        be saved in proportion table format, which can be used
+                        with eg. Radmeth. Also a design matrix is saved into a
+                        text file.
+  -z SAVE_LUXUS_SEP, --save_LuxUS_sep SAVE_LUXUS_SEP
+                        0 or 1 indicating whether the seimulated data should
+                        be saved in a format supported by LuxUS analysis where
+                        each cytosine is analysed separately.
+```
+
+Usage example for the simulation function. This command would create 100 + 100 datasets with 6 + 6 samples. The total read count is 12 for each 10 cytosine in each data set. The simulated data is saved in folder /folder1/folder2 in LuxUS input format. The mean of the normal distribution from which the intercept term coefficients are drawn is -1.4 and the variance is set to 0.25. When simulating a data set with differential methylation, the coefficient for the case/control variable is set to 0.9 and when simulating a data set with no differential methylation, the coefficient for the case/control variable is set to 0. The variance terms and the region width are set as described in [5].
+
+```
+FOLDER=/folder1/folder2
+SIGMAE2=1
+SIGMAR2=0.69
+SIGMAC2=2
+SIGMAB2=0.25
+SIGMAB2_STAN=15
+N_CYT=10
+READS=12
+REPS=6
+N_DATASETS=100
+L=38
+WIDTH=1000
+
+python simulate_data_LuxUS.py -e $SIGMAE2 -q $READS -r $REPS -c $N_CYT -l $L -w $WIDTH -n $N_DATASETS -f $FOLDER -g "testing" -v $SIGMAB2 -d $SIGMAR2 -a $SIGMAC2 -m '[-1.4, 0.9]' -j $SIGMAB2_STAN -x 1 -y 0 -z 0
+```
+
 ## References
 
 [1] Äijö, T., Yue, X., Rao, A., Lähdesmäki, H (2016) LuxGLM: a probabilistic covariate model for quantification of DNA methylation modifications with complex experimental designs. *Bioinformatics*, 32(17), i511-i519.
@@ -268,3 +356,4 @@ The script produces the file *test_data_diff1_final_results.txt*.
 
 [4] Stan Development Team (2017) PyStan: the Python interface to Stan, Version 2.16.0.0.   http://mc-stan.org
 
+[5] Halla-aho, V. and Lähdesmäki, H. (2019) LuxUS: Detecting differential DNA methylation using generalized linear mixed model with spatial correlation structure. doi: https://doi.org/10.1101/536722
