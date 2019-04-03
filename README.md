@@ -328,7 +328,7 @@ optional arguments:
                         each cytosine is analysed separately.
 ```
 
-Usage example for the simulation function. This command would create 100 + 100 datasets with 6 + 6 samples. The total read count is 12 for each 10 cytosine in each data set. The simulated data is saved in folder /folder1/folder2 in LuxUS input format. The mean of the normal distribution from which the intercept term coefficients are drawn is -1.4 and the variance is set to 0.25. When simulating a data set with differential methylation, the coefficient for the case/control variable is set to 0.9 and when simulating a data set with no differential methylation, the coefficient for the case/control variable is set to 0. The variance terms and the region width are set as described in [5].
+Usage example for the simulation function is given below. This command would create 100 + 100 datasets with 6 + 6 samples. The total read count is 12 for each 10 cytosine in each data set. The simulated data is saved in folder /folder1/folder2 in LuxUS input format. The mean of the normal distribution from which the intercept term coefficients are drawn is -1.4 and the variance is set to 0.25. When simulating a data set with differential methylation, the coefficient for the case/control variable is set to 0.9 and when simulating a data set with no differential methylation, the coefficient for the case/control variable is set to 0. The variance terms and the region width are set as described in [5].
 
 ```
 FOLDER=/folder1/folder2
