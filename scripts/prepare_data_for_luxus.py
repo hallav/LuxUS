@@ -68,7 +68,7 @@ if __name__ == '__main__':
     parser.add_argument('-j','--seqErr',action='store',dest='seqErr',type=str,required=False,help="Sequencing error in format [seqErr_1,...,seqErr_N_replicates]. If not specified, default value %s is used for all samples."%(default_seqErr))
     parser.add_argument('-t','--test_covariate',action='store',dest='t_covariate',type=int,required=False,help="Give integer value indicating the column which is the covariate to be tested. Assumed to be a binary covariate. Indexing starts from 0. If not specified, default value %s is used."%(default_t_covariate))
     parser.add_argument('-u','--required_pval',action='store',dest='req_pval',type=float,required=True,help='Required maximum p-value for the coefficient for the variable given as --test_covariate for the cytosine window to be included in the analysis. Set to 1 if no p-value restriction is desired.')
-    parser.add_argument('-v','--required_coverage',action='store',dest='required_coverage',type=int,required=False,help="Required average coverage over window for a replicate. If not specified, default value %s is used."%(default_required_coverage))
+    parser.add_argument('-v','--required_coverage',action='store',dest='required_coverage',type=float,required=False,help="Required average coverage over window for a replicate. If not specified, default value %s is used."%(default_required_coverage))
     parser.add_argument('-y','--meanCovFile',action='store',dest='meanCovFile',type=str,required=False,help='File name for storing mean coverages for each window')
     parser.add_argument('-z','--cytNFile',action='store',dest='cytNFile',type=str,required=False,help='File name for storing the number of cytosines in each window.')
 
