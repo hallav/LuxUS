@@ -330,7 +330,7 @@ if __name__ == '__main__':
         else:
             diagnostic_plots=options.diagnostic_plots
 
-        if luxus_data['n_cytosines']==1:
+        if luxus_data['n_cytosines']>1:
             stan_file="luxus"
         else:
        	    stan_file="luxus_1cytosine"
