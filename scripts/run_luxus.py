@@ -86,21 +86,22 @@ def extractVariable2dim(outputdict,varName,N,M,N_samples):
 
 #Parsing samples of theta from extracted dictionary (from variational analysis)
 def extractVariable1dim(outputdict,varName,N,N_samples):
-   #Input arguments:
-   #outputdict= the dictionary object from which we should parse the output
-   #varName= the name of the variable in the dictionary, a string object
-   #N= size in dimension 1, integer, variable is originally a Nx1 vector
-   #N_samples= number of samples per variable in outputdict
-   #This function is for extracting vectors (e.g. 1-dimensional arrays)!!
-   extractVar=numpy.zeros((N_samples+1,N)) #Make a 2D-matrix where all samples are stored
-   for i in range(0,N): #Go through all variable indices, for which the samples have been stored under separate dictionary$
-       if N==1:
-           t_i=varName #If the original variable was a scalar, this is used as a key
-       else:
-           t_i=varName+'.'+str(i+1) #Forming the key
-           extractVar[:,i]=outputdict[t_i] #Store the samples under the key into the matrix
+    #Input arguments:
+    #outputdict= the dictionary object from which we should parse the output
+    #varName= the name of the variable in the dictionary, a string object
+    #N= size in dimension 1, integer, variable is originally a Nx1 vector
+    #N_samples= number of samples per variable in outputdict
+    #This function is for extracting vectors (e.g. 1-dimensional arrays)!!
+    extractVar=numpy.zeros((N_samples+1,N)) #Make a 2D-matrix where all samples are stored
+    for i in range(0,N): #Go through all variable indices, for which the samples have been stored under separate dictionary$
+        if N==1:
+            t_i=varName #If the original variable was a scalar, this is used as a key
+        else:
+            t_i=varName+'.'+str(i+1) #Forming the key
+           
+        extractVar[:,i]=outputdict[t_i] #Store the samples under the key into the matrix
 
-   return extractVar;
+    return extractVar;
 
 
 
