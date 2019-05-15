@@ -105,7 +105,7 @@ def extractVariable1dim(outputdict,varName,N,N_samples):
 
 
 
-def run_luxus_HMC(sigmaB2, lux_data, stan_model_file, plot_file_name, covariate_to_be_tested, N_outputsamples, N_chains, diagnostic_plots,testtype,test2cov):
+def run_luxus_HMC(sigmaB2, lux_data, stan_model_file, plot_file_name, covariate_to_be_tested, N_outputsamples, N_chains, diagnostic_plots,testtype,test2cov,N_cytosines):
 
     time_start=time.time()
     fit = stan_cache(stan_model_file, data=lux_data, iter=N_outputsamples, chains=N_chains)
@@ -120,21 +120,28 @@ def run_luxus_HMC(sigmaB2, lux_data, stan_model_file, plot_file_name, covariate_
     print(fit)
 
     if diagnostic_plots==1:
-        vars_to_be_printed=['l','sigmaE2','sigmaC2','sigmaR2','B']
+        if N_cytosines ==1:
+            vars_to_be_printed=['l','sigmaE2','sigmaR2','B']
+        else:
+            vars_to_be_printed=['l','sigmaE2','sigmaC2','sigmaR2','B']
+        
         fit.plot(vars_to_be_printed)
         pyplot.tight_layout()
         pyplot.savefig(plot_file_name)
 
     sigmaR2_mean=numpy.mean(samples['sigmaR2'])
     sigmaE2_mean=numpy.mean(samples['sigmaE2'])
-    sigmaC2_mean=numpy.mean(samples['sigmaC2'])
-
+    
+    if N_cytosines==1:
+        sigmaC2_mean=numpy.nan
+    else:
+        sigmaC2_mean=numpy.mean(samples['sigmaC2'])
 
     runtime=time_end_full-time_start
 	
     return bf, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean;	
 
-def run_luxus_VI(lux_data, model_name, N_gradsamples, N_elbosamples, N_outputsamples,temp_input_data_file_name, temp_output_file_name, sigmaB2,diagnostic_plots,plot_file_name, N_predictors, covariate_to_be_tested,testtype, test2cov):
+def run_luxus_VI(lux_data, model_name, N_gradsamples, N_elbosamples, N_outputsamples,temp_input_data_file_name, temp_output_file_name, sigmaB2,diagnostic_plots,plot_file_name, N_predictors, covariate_to_be_tested,testtype, test2cov,N_cytosines):
 
     time_start=time.time()
     pystan.misc.stan_rdump(lux_data,temp_input_data_file_name)
@@ -151,13 +158,16 @@ def run_luxus_VI(lux_data, model_name, N_gradsamples, N_elbosamples, N_outputsam
     time_end_full=time.time()
 
     samples_sigmaR2=extractVariable1dim(samples,'sigmaR2',1,N_outputsamples)
-    samples_sigmaC2=extractVariable1dim(samples,'sigmaC2',1,N_outputsamples)
     samples_sigmaE2=extractVariable1dim(samples,'sigmaE2',1,N_outputsamples)
     samples_l=extractVariable1dim(samples,'l',1,N_outputsamples)
 
     sigmaR2_mean=numpy.mean(samples_sigmaR2)
-    sigmaC2_mean=numpy.mean(samples_sigmaC2)
     sigmaE2_mean=numpy.mean(samples_sigmaE2)
+    
+    if N_cytosines!=1:
+        samples_sigmaC2=extractVariable1dim(samples,'sigmaC2',1,N_outputsamples)
+        sigmaC2_mean=numpy.mean(samples_sigmaC2)
+        
 
     if diagnostic_plots==1:
 
@@ -166,10 +176,11 @@ def run_luxus_VI(lux_data, model_name, N_gradsamples, N_elbosamples, N_outputsam
         pyplot.title(r'$\sigma_R^2$')
         pyplot.show()
 
-        pyplot.subplot(5,1,2)
-        pyplot.hist(samples_sigmaC2,bins=20)
-        pyplot.title(r'$\sigma_C^2$')
-        pyplot.show()
+        if N_cytosines!=1:
+            pyplot.subplot(5,1,2)
+            pyplot.hist(samples_sigmaC2,bins=20)
+            pyplot.title(r'$\sigma_C^2$')
+            pyplot.show()
 
         pyplot.subplot(5,1,3)
         pyplot.hist(samples_sigmaE2,bins=20)
@@ -197,6 +208,9 @@ def run_luxus_VI(lux_data, model_name, N_gradsamples, N_elbosamples, N_outputsam
     subprocess.call("rm %s"%(temp_output_file_name),shell=True)
 
     runtime=time_end_full-time_start
+    
+    if N_cytosines==1:
+        sigmaC2_mean=numpy.nan
 
     return bf, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean;		
 
@@ -300,7 +314,7 @@ if __name__ == '__main__':
             stan_file='luxus_1cytosine.stan'
 
         print("Estimating the model parameters with HMC.")
-        BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_HMC(sigmaB2, luxus_data, stan_file, plot_file_name, options.test_covariate, N_outputsamples_HMC,N_HMC_chains,diagnostic_plots,test_type,test_type2_cov)
+        BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_HMC(sigmaB2, luxus_data, stan_file, plot_file_name, options.test_covariate, N_outputsamples_HMC,N_HMC_chains,diagnostic_plots,test_type,test_type2_cov,luxus_data['n_cytosines'])
 
 
 
@@ -343,7 +357,7 @@ if __name__ == '__main__':
         variational_temp_data_file="%s/TEMP_store_variational_input_%s_%s_%s_%s_%s_%s_%s.txt"%(options.outputFolder,input_data_id,currenttime[0],currenttime[1],currenttime[2],currenttime[3],currenttime[4],currenttime[5])
         variational_temp_output_file="%s/TEMP_store_variational_results_%s_%s_%s_%s_%s_%s_%s.csv"%(options.outputFolder,input_data_id,currenttime[0],currenttime[1],currenttime[2],currenttime[3],currenttime[4],currenttime[5])
 
-        BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_VI(luxus_data,stan_file, N_gradsamples, N_elbosamples, N_outputsamples_VI, variational_temp_data_file, variational_temp_output_file, sigmaB2,diagnostic_plots,plot_file_name,N_covariates, options.test_covariate,test_type,test_type2_cov)
+        BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_VI(luxus_data,stan_file, N_gradsamples, N_elbosamples, N_outputsamples_VI, variational_temp_data_file, variational_temp_output_file, sigmaB2,diagnostic_plots,plot_file_name,N_covariates, options.test_covariate,test_type,test_type2_cov,luxus_data['n_cytosines'])
 
 
     if options.window_index is None:
