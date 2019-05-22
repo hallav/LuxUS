@@ -273,7 +273,7 @@ if __name__ == '__main__':
             CYTOSINE_INDEX_WINDOW=CYTOSINE_INDEX_WINDOW+1
 
 
-        if (((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW>=1) or (((BSseq_data[i+1][1]-WINDOW_START_COORD)>window_width)) and CYTOSINE_INDEX_WINDOW>=1) or CYTOSINE_INDEX_WINDOW>=window_N_cytosines:
+        if (((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW>=1) or (((BSseq_data[i+1][1]-WINDOW_START_COORD)>window_width)) and CYTOSINE_INDEX_WINDOW>=1) or CYTOSINE_INDEX_WINDOW>=window_N_cytosines or (numpy.char.not_equal(BSseq_data[i+1][0],BSseq_data[i][0]) and CYTOSINE_INDEX_WINDOW>=1):
 
             observed_reps=numpy.nonzero(numpy.sum(counts_window,axis=0))
             mean_methylation_level=numpy.sum(methylated_window[:,observed_reps],axis=0).astype(float)/numpy.sum(counts_window[:,observed_reps],axis=0).astype(float)
@@ -329,7 +329,7 @@ if __name__ == '__main__':
             WINDOW_COUNT=WINDOW_COUNT+1
 
         else:
-            if (((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW==0) or (((BSseq_data[i+1][1]-WINDOW_START_COORD)>window_width)) and CYTOSINE_INDEX_WINDOW==0):
+            if (((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW==0) or (((BSseq_data[i+1][1]-WINDOW_START_COORD)>window_width)) and CYTOSINE_INDEX_WINDOW==0) or (numpy.char.not_equal(BSseq_data[i+1][0],BSseq_data[i][0]) and CYTOSINE_INDEX_WINDOW==0):
                 NEW_WINDOW=1
 
 
