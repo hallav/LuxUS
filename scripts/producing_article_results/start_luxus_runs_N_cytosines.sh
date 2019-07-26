@@ -1,10 +1,8 @@
+#This script calls run_calculate_BF_luxus_N_cytosines.sh, which then calls srun_calculate_BF_luxus_N_cytosines.sh
 
+RUN_SEP=0 #Run the LuxUS analysis separately for each cytosine
+RUN_LUXUS=1 #Run the LuxUS analysis for the whole window
 
-RUN_V3_SEP=0
-RUN_V3=1
-RUN_V1=0
-
-declare -a muB=("mu_1_4_minus1")
 
 for N_CYT in {1..20}
 do 
@@ -18,7 +16,7 @@ do
             for DIFF in 0 1
             do
                 #Start computation cluster runs for the following script
-                sbatch run_calculate_BF_luxus_N_cytosines.sh $DIFF $REPS $READS $RUN_V3_SEP $RUN_V3 $RUN_V1 $N_CYT
+                sbatch run_calculate_BF_luxus_N_cytosines.sh $DIFF $REPS $READS $RUN_V3_SEP $RUN_V3 $N_CYT
 
             done
 
