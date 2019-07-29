@@ -18,14 +18,14 @@ if (($#==6)); then
     if [[ "$5" == 1 ]]
     then
 
-        python calculate_BF_final.py -d $SLURM_ARRAY_TASK_ID -w 1000 -l 38 -p 2 -c 10 -r $REPS -q $READS -f /path/to/results/folder/"$MU" -i /path/to/generated/data/"$MU" -b 15 -a $DIFF -x 0 -y 0 -z 0 -t 0 -s 1
+        python luxus_calculate_BF.py -d $SLURM_ARRAY_TASK_ID -w 1000 -l 38 -p 2 -c 10 -r $REPS -q $READS -f /path/to/results/folder/"$MU" -i /path/to/generated/data/"$MU" -b 15 -a $DIFF -x 0 -y 0 -z 0 -t 0 -s 1
 
     fi
 
     if [[ "$6" == 1 ]]
     then
 
-        python calculate_BF_final.py -d $SLURM_ARRAY_TASK_ID -w 1000 -l 38 -p 2 -c 10 -r $REPS -q $READS -f /path/to/results/folder/"$MU" -i /path/to/generated/data/"$MU" -b 15 -a $DIFF -x 0 -y 0 -z 0 -t 1 -s 0
+        python luxus_calculate_BF.py -d $SLURM_ARRAY_TASK_ID -w 1000 -l 38 -p 2 -c 10 -r $REPS -q $READS -f /path/to/results/folder/"$MU" -i /path/to/generated/data/"$MU" -b 15 -a $DIFF -x 0 -y 0 -z 0 -t 1 -s 0
 
     fi
 
