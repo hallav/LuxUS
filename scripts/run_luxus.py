@@ -160,7 +160,6 @@ def run_luxus_VI(lux_data, model_name, N_gradsamples, N_elbosamples, N_outputsam
 
     samples_sigmaR2=extractVariable1dim(samples,'sigmaR2',1,N_outputsamples)
     samples_sigmaE2=extractVariable1dim(samples,'sigmaE2',1,N_outputsamples)
-    samples_l=extractVariable1dim(samples,'l',1,N_outputsamples)
 
     sigmaR2_mean=numpy.mean(samples_sigmaR2)
     sigmaE2_mean=numpy.mean(samples_sigmaE2)
@@ -168,7 +167,9 @@ def run_luxus_VI(lux_data, model_name, N_gradsamples, N_elbosamples, N_outputsam
     if N_cytosines!=1:
         samples_sigmaC2=extractVariable1dim(samples,'sigmaC2',1,N_outputsamples)
         sigmaC2_mean=numpy.mean(samples_sigmaC2)
-        
+        samples_l=extractVariable1dim(samples,'l',1,N_outputsamples)
+    else:
+        sigmaC2_mean=0
 
     if diagnostic_plots==1:
 
@@ -176,28 +177,26 @@ def run_luxus_VI(lux_data, model_name, N_gradsamples, N_elbosamples, N_outputsam
         pyplot.hist(samples_sigmaR2,bins=20)
         pyplot.title(r'$\sigma_R^2$')
         pyplot.show()
+        
+        pyplot.subplot(5,1,2)
+        pyplot.hist(samples_sigmaE2,bins=20)
+        pyplot.title(r'$\sigma_E^2$')
+        pyplot.show()
+        
+        pyplot.subplot(5,1,3)
+        for b_ind in range(0,N_predictors):
+            pyplot.hist(samples_B[b_ind],bins=20,label="b_%s"%(b_ind))
 
         if N_cytosines!=1:
-            pyplot.subplot(5,1,2)
+            pyplot.subplot(5,1,4)
             pyplot.hist(samples_sigmaC2,bins=20)
             pyplot.title(r'$\sigma_C^2$')
             pyplot.show()
 
-        pyplot.subplot(5,1,3)
-        pyplot.hist(samples_sigmaE2,bins=20)
-        pyplot.title(r'$\sigma_E^2$')
-        pyplot.show()
-
-
-        pyplot.subplot(5,1,4)
-        pyplot.hist(samples_l,bins=20)
-        pyplot.title(r'$\ell$')
-        pyplot.show()
-
-
-        pyplot.subplot(5,1,5)
-        for b_ind in range(0,N_predictors):
-            pyplot.hist(samples_B[b_ind],bins=20,label="b_%s"%(b_ind))
+            pyplot.subplot(5,1,5)
+            pyplot.hist(samples_l,bins=20)
+            pyplot.title(r'$\ell$')
+            pyplot.show()
 
         pyplot.legend(loc='upper right')
         pyplot.title(r'$\mathbf{b}$')
