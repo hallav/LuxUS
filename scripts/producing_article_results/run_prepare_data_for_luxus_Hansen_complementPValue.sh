@@ -26,4 +26,4 @@ WINDOW_WIDTH=2000
 REQUIRED_DIFF=0.1
 
 
-python /path/to/script/folder/prepare_data_for_luxus_Hansen_complementPValue -i "$INPUT_FOLDER"/"$INPUT_FILE" -d $DESIGN_MATRIX -o $OUTPUT_FOLDER -r 6  -t $TEST_COV_IND -w $WINDOW_WIDTH -u $REQUIRED_DIFF -y $MEANCOVFILE -z $CYTNFILE
+python /path/to/script/folder/prepare_data_for_luxus_Hansen_complementPValue.py -i "$INPUT_FOLDER"/"$INPUT_FILE" -d $DESIGN_MATRIX -o $OUTPUT_FOLDER -r 6  -t $TEST_COV_IND -w $WINDOW_WIDTH -u $REQUIRED_DIFF -y $MEANCOVFILE -z $CYTNFILE
