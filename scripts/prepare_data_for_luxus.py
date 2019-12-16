@@ -272,65 +272,67 @@ if __name__ == '__main__':
             INCLUDED_IN_ANALYSIS_WINDOW[i]=1
             CYTOSINE_INDEX_WINDOW=CYTOSINE_INDEX_WINDOW+1
 
-
-        if (((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW>=1) or (((BSseq_data[i+1][1]-WINDOW_START_COORD)>window_width)) and CYTOSINE_INDEX_WINDOW>=1) or CYTOSINE_INDEX_WINDOW>=window_N_cytosines or (numpy.char.not_equal(BSseq_data[i+1][0],BSseq_data[i][0]) and CYTOSINE_INDEX_WINDOW>=1):
-
-            observed_reps=numpy.nonzero(numpy.sum(counts_window,axis=0))
-            mean_methylation_level=numpy.sum(methylated_window[:,observed_reps],axis=0).astype(float)/numpy.sum(counts_window[:,observed_reps],axis=0).astype(float)
-            mean_methylation_level=mean_methylation_level[0]
-
-            #Restrict the mean methylation levels in y into range [0.00001,0.99999] to prevent infinite values after logit transformation
-            mean_methylation_level[numpy.nonzero(mean_methylation_level>0.99999)[0]]=0.99999
-            mean_methylation_level[numpy.nonzero(mean_methylation_level<0.00001)[0]]=0.00001
-
-            y=scipy.special.logit(mean_methylation_level)
-
-            pvalue=ftest(y,design_matrix[observed_reps[0],:],t_covariate)
-
-            average_coverages=numpy.mean(counts_window[0:CYTOSINE_INDEX_WINDOW,:],axis=0)
-            N_samples_with_required_coverage_group1=len(numpy.intersect1d(numpy.nonzero(average_coverages>=required_coverage)[0],numpy.nonzero(design_matrix[:,t_covariate])[0]))
-            N_samples_with_required_coverage_group2=len(numpy.intersect1d(numpy.nonzero(average_coverages>=required_coverage)[0],numpy.nonzero(design_matrix[:,t_covariate]==0)[0]))
-
-
-            if pvalue<=options.req_pval and N_samples_with_required_coverage_group1>=N_required_samples and N_samples_with_required_coverage_group2>=N_required_samples:             
-
-                print("The F-test p-value for linear model coefficient of the variable of interest was %s and smaller than %s. Saving window %s."%(pvalue,options.req_pval,WINDOW_COUNT))
-
-                mean_coverage_in_window[INCLUDED_IN_ANALYSIS_WINDOW_SAVED-1,:]=numpy.mean(counts_window[0:CYTOSINE_INDEX_WINDOW,:],axis=0)
-
-               
-                luxusv3_data={'n_cytosines': int(CYTOSINE_INDEX_WINDOW),'n_replicates': int(N_replicates),'n_predictors': int(N_predictors),
-                                     'bsEff': numpy.tile(bsEff,(CYTOSINE_INDEX_WINDOW)), 'bsBEff': numpy.tile(bsbEff,(CYTOSINE_INDEX_WINDOW)), 'seqErr': numpy.tile(seqErr,(CYTOSINE_INDEX_WINDOW)),
-                                     'bsC': methylated_window[0:CYTOSINE_INDEX_WINDOW].flatten().astype(int), 'bsTot': counts_window[0:CYTOSINE_INDEX_WINDOW].flatten().astype(int),
-                                     'X': numpy.tile(design_matrix,(CYTOSINE_INDEX_WINDOW,1)), 'Z_R': numpy.tile(numpy.arange(1,N_replicates+1),(CYTOSINE_INDEX_WINDOW)).astype(int), 
-                                     'Z_C': numpy.kron(numpy.arange(1,CYTOSINE_INDEX_WINDOW+1),numpy.ones((N_replicates))).astype(int), 'alpha': alpha_e, 'beta': beta_e,
-                                     'alphaR': alpha_r, 'betaR': beta_r,
-                                     'alphal': alpha_l, 'betal': beta_l,
-                                     'sigmaB2': sigmaB2, 'alphaC': alpha_c, 'betaC': beta_c,
-                                     'coordinates': coordinates_window[0:CYTOSINE_INDEX_WINDOW]}
-
-                #Saving the generated dataset
-                output4=open("%s/input_for_luxus_%s.txt"%(options.output_folder,INCLUDED_IN_ANALYSIS_WINDOW_SAVED),'ab+')
-                pickle.dump(luxusv3_data,output4)
-                output4.close()
-
-
-                number_of_cytosines_in_window[INCLUDED_IN_ANALYSIS_WINDOW_SAVED-1]=CYTOSINE_INDEX_WINDOW
-
-                INCLUDED_IN_ANALYSIS=INCLUDED_IN_ANALYSIS+INCLUDED_IN_ANALYSIS_WINDOW_SAVED*INCLUDED_IN_ANALYSIS_WINDOW 
-                INCLUDED_IN_ANALYSIS_WINDOW_SAVED+=1
-
-            else:
-                print("Window %s is not saved. Either the F-test p-value (%s) for linear model coefficient of the variable of interest was higher than %s OR the number of samples with required coverage was too low (controls %s, cases %s)."%(WINDOW_COUNT,pvalue,options.req_pval,N_samples_with_required_coverage_group2,N_samples_with_required_coverage_group1))
-
-
-            #Initialize new window in next loop
+        if ((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW==0):
             NEW_WINDOW=1
-            WINDOW_COUNT=WINDOW_COUNT+1
-
         else:
-            if (((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW==0) or (((BSseq_data[i+1][1]-WINDOW_START_COORD)>window_width)) and CYTOSINE_INDEX_WINDOW==0) or (numpy.char.not_equal(BSseq_data[i+1][0],BSseq_data[i][0]) and CYTOSINE_INDEX_WINDOW==0):
+            if (((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW>=1) or (((BSseq_data[i+1][1]-WINDOW_START_COORD)>window_width)) and CYTOSINE_INDEX_WINDOW>=1) or CYTOSINE_INDEX_WINDOW>=window_N_cytosines or (numpy.char.not_equal(BSseq_data[i+1][0],BSseq_data[i][0]) and CYTOSINE_INDEX_WINDOW>=1):
+    
+                observed_reps=numpy.nonzero(numpy.sum(counts_window,axis=0))
+                mean_methylation_level=numpy.sum(methylated_window[:,observed_reps],axis=0).astype(float)/numpy.sum(counts_window[:,observed_reps],axis=0).astype(float)
+                mean_methylation_level=mean_methylation_level[0]
+    
+                #Restrict the mean methylation levels in y into range [0.00001,0.99999] to prevent infinite values after logit transformation
+                mean_methylation_level[numpy.nonzero(mean_methylation_level>0.99999)[0]]=0.99999
+                mean_methylation_level[numpy.nonzero(mean_methylation_level<0.00001)[0]]=0.00001
+    
+                y=scipy.special.logit(mean_methylation_level)
+    
+                pvalue=ftest(y,design_matrix[observed_reps[0],:],t_covariate)
+    
+                average_coverages=numpy.mean(counts_window[0:CYTOSINE_INDEX_WINDOW,:],axis=0)
+                N_samples_with_required_coverage_group1=len(numpy.intersect1d(numpy.nonzero(average_coverages>=required_coverage)[0],numpy.nonzero(design_matrix[:,t_covariate])[0]))
+                N_samples_with_required_coverage_group2=len(numpy.intersect1d(numpy.nonzero(average_coverages>=required_coverage)[0],numpy.nonzero(design_matrix[:,t_covariate]==0)[0]))
+    
+    
+                if pvalue<=options.req_pval and N_samples_with_required_coverage_group1>=N_required_samples and N_samples_with_required_coverage_group2>=N_required_samples:             
+    
+                    print("The F-test p-value for linear model coefficient of the variable of interest was %s and smaller than %s. Saving window %s."%(pvalue,options.req_pval,WINDOW_COUNT))
+    
+                    mean_coverage_in_window[INCLUDED_IN_ANALYSIS_WINDOW_SAVED-1,:]=numpy.mean(counts_window[0:CYTOSINE_INDEX_WINDOW,:],axis=0)
+    
+                   
+                    luxusv3_data={'n_cytosines': int(CYTOSINE_INDEX_WINDOW),'n_replicates': int(N_replicates),'n_predictors': int(N_predictors),
+                                         'bsEff': numpy.tile(bsEff,(CYTOSINE_INDEX_WINDOW)), 'bsBEff': numpy.tile(bsbEff,(CYTOSINE_INDEX_WINDOW)), 'seqErr': numpy.tile(seqErr,(CYTOSINE_INDEX_WINDOW)),
+                                         'bsC': methylated_window[0:CYTOSINE_INDEX_WINDOW].flatten().astype(int), 'bsTot': counts_window[0:CYTOSINE_INDEX_WINDOW].flatten().astype(int),
+                                         'X': numpy.tile(design_matrix,(CYTOSINE_INDEX_WINDOW,1)), 'Z_R': numpy.tile(numpy.arange(1,N_replicates+1),(CYTOSINE_INDEX_WINDOW)).astype(int), 
+                                         'Z_C': numpy.kron(numpy.arange(1,CYTOSINE_INDEX_WINDOW+1),numpy.ones((N_replicates))).astype(int), 'alpha': alpha_e, 'beta': beta_e,
+                                         'alphaR': alpha_r, 'betaR': beta_r,
+                                         'alphal': alpha_l, 'betal': beta_l,
+                                         'sigmaB2': sigmaB2, 'alphaC': alpha_c, 'betaC': beta_c,
+                                         'coordinates': coordinates_window[0:CYTOSINE_INDEX_WINDOW]}
+    
+                    #Saving the generated dataset
+                    output4=open("%s/input_for_luxus_%s.txt"%(options.output_folder,INCLUDED_IN_ANALYSIS_WINDOW_SAVED),'ab+')
+                    pickle.dump(luxusv3_data,output4)
+                    output4.close()
+    
+    
+                    number_of_cytosines_in_window[INCLUDED_IN_ANALYSIS_WINDOW_SAVED-1]=CYTOSINE_INDEX_WINDOW
+    
+                    INCLUDED_IN_ANALYSIS=INCLUDED_IN_ANALYSIS+INCLUDED_IN_ANALYSIS_WINDOW_SAVED*INCLUDED_IN_ANALYSIS_WINDOW 
+                    INCLUDED_IN_ANALYSIS_WINDOW_SAVED+=1
+    
+                else:
+                    print("Window %s is not saved. Either the F-test p-value (%s) for linear model coefficient of the variable of interest was higher than %s OR the number of samples with required coverage was too low (controls %s, cases %s)."%(WINDOW_COUNT,pvalue,options.req_pval,N_samples_with_required_coverage_group2,N_samples_with_required_coverage_group1))
+    
+    
+                #Initialize new window in next loop
                 NEW_WINDOW=1
+                WINDOW_COUNT=WINDOW_COUNT+1
+    
+            else:
+                if (((i==(len(BSseq_data)-1)) and CYTOSINE_INDEX_WINDOW==0) or (((BSseq_data[i+1][1]-WINDOW_START_COORD)>window_width)) and CYTOSINE_INDEX_WINDOW==0) or (numpy.char.not_equal(BSseq_data[i+1][0],BSseq_data[i][0]) and CYTOSINE_INDEX_WINDOW==0):
+                    NEW_WINDOW=1
 
 
 
