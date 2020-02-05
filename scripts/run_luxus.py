@@ -247,6 +247,7 @@ if __name__ == '__main__':
     parser.add_argument('-c','--N_HMC_chains',action='store',dest='N_HMC_chains',type=int,required=False,help="Number of chains in HMC sampling. Default value %s is used if not specified."%(default_N_HMC_chains))
     parser.add_argument('-w','--window_index',action='store',dest='window_index',type=int,required=False,help='The index of the window being analysed. If value is not given the BF is saved without window index into the defined output file.')
     parser.add_argument('-t','--timeFile',action='store',dest='timeFile',type=str,required=False,help='File name (and path) for storing computation time. If no file name is given the computation times will not be stored into a file.')
+    parser.add_argument('-n','--variance_prior',action='store',dest='variance_prior',type=int,required=False,help='Which prior distribution to use for variance parameters. Give value 0 (use gamma priors, default) or 1 (use inverse-gamma priors).')
 
     options = parser.parse_args()
 
@@ -273,6 +274,13 @@ if __name__ == '__main__':
     else:
         test_type=2
         test_type2_cov=options.test_covariate2
+
+    if  options.variance_prior is None:
+        print("Variance prior was not specified. Default prior distribution (gamma) is used.")
+
+        variance_prior=0
+    else:
+        variance_prior=options.variance_prior
 
 
     inputf=open("%s/%s"%(options.inputFolder,options.input_data),'rb')
@@ -309,9 +317,17 @@ if __name__ == '__main__':
         plot_file_name="%s/%s_diagnostic_plots_HMC.png"%(options.outputFolder,input_data_id)
 
         if luxus_data['n_cytosines']>1:
-            stan_file='luxus.stan'
+
+            if variance_prior==0:
+              stan_file='luxus.stan'
+            else:
+              stan_file='luxus_inverse_gamma_priors.stan'
         else:
-            stan_file='luxus_1cytosine.stan'
+
+            if variance_prior==0:
+              stan_file='luxus_1cytosine.stan'
+            else:
+              stan_file='luxus_1cytosine_inverse_gamma_priors.stan'
 
         print("Estimating the model parameters with HMC.")
         BF, runtime, sigmaR2_mean, sigmaC2_mean, sigmaE2_mean = run_luxus_HMC(sigmaB2, luxus_data, stan_file, plot_file_name, options.test_covariate, N_outputsamples_HMC,N_HMC_chains,diagnostic_plots,test_type,test_type2_cov,luxus_data['n_cytosines'])
@@ -345,9 +361,15 @@ if __name__ == '__main__':
             diagnostic_plots=options.diagnostic_plots
 
         if luxus_data['n_cytosines']>1:
-            stan_file="luxus"
+            if variance_prior==0:
+              stan_file="luxus"
+            else:
+              stan_file='luxus_inverse_gamma_priors'
         else:
-       	    stan_file="luxus_1cytosine"
+            if variance_prior==0:
+       	      stan_file="luxus_1cytosine"
+            else:
+              stan_file='luxus_1cytosine_inverse_gamma_priors'
 
         plot_file_name="%s/%s_diagnostic_plots_ADVI.png"%(options.outputFolder,input_data_id)
 
