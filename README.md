@@ -80,10 +80,10 @@ optional arguments:
                         Hyperparameter beta for prior distribution of l. If
                         not specified, default value 1 is used.
   -m ALPHA_E, --alpha_e ALPHA_E
-                        Hyperparameter alpha for prior distribution of e. If
+                        Hyperparameter alpha for prior distribution of sigmaE2. If
                         not specified, default value 5 is used.
   -n BETA_E, --beta_e BETA_E
-                        Hyperparameter beta for prior distribution of e. If
+                        Hyperparameter beta for prior distribution of sigmaE2. If
                         not specified, default value 5 is used.
   -k ALPHA_R, --alpha_r ALPHA_R
                         Hyperparameter alpha for prior distribution of
@@ -146,13 +146,17 @@ This command produces the following output files
 
 The test input file *proportion_table_test_data_diff0.txt* contains a test data set in which no differential methylation is present and it will not pass the preanalysis filtering.
 
+When defining the hyperparameters for e, sigmaR2 and sigmaC2, it is possible to give the desired parameters to either gamma or inverse-gamma prior. The default parameters are meant to be used with a gamma prior.
+
 ## Running LuxUS analysis
 
 The *run_luxus.py* script can be used to run the LuxUS analysis for the desired input data, which has first been prepared with the *prepare_data_for_LuxUS.py* script. The script loads the input data, fits the model with using the chosen model fitting method, calculates the Bayes factor and saves it into the result file. The computation time can also be saved if desired. As the script is run on one genomic window at a time, it is possible to parallelize the computation of Bayes factors if desired. 
 
-With argument *-a ALGORITHM* the algorithm to be used for fitting the model parameter can be chosen between Hamiltonian Monte Carlo (HMC) sampling and Automatic Differentation Variational Inference (ADVI), with Hamiltonian Monte Carlo sampling being the default option. When performing model fitting with HMC, the standard Stan fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for the variance parameters for the cytosine and replicate random effects and the noise term, fixed effect coefficients and lengthscale parameter can be plotted. When using ADVI for model fitting, the input files are first saved as temporal [R dump files](https://pystan.readthedocs.io/en/latest/conversion.html). Then CmdStan is called using [subprocess package](https://docs.python.org/2/library/subprocess.html) in Python and temporal sample files are produced as a result. The samples are extracted from these files and used for Bayes factor calculation. After this the temporal files are removed by the script. Before running this script with ADVI chosen as the model fitting method, the Stan model should be built using CmdStan. This can be done by running [*make* command](https://github.com/stan-dev/cmdstan/wiki/Getting-Started-with-CmdStan) for the Stan model file (.stan file) in the CmdStan folder. The result will be stored in the same folder where the original .stan file was located. This should be the same folder from which the *run_luxus.py* script is run. 
+With argument *-a ALGORITHM* the algorithm to be used for fitting the model parameter can be chosen between Hamiltonian Monte Carlo (HMC) sampling and Automatic Differentation Variational Inference (ADVI), with Hamiltonian Monte Carlo sampling being the default option. When performing model fitting with HMC, the standard Stan fit summary can be found from the Python log file. If desired, the sample chains and histograms of the samples for the variance parameters for the cytosine and replicate random effects and the noise term, fixed effect coefficients and lengthscale parameter can be plotted. When using ADVI for model fitting, the input files are first saved as temporal [R dump files](https://pystan.readthedocs.io/en/latest/conversion.html). Then CmdStan is called using [subprocess package](https://docs.python.org/2/library/subprocess.html) in Python and temporal sample files are produced as a result. The samples are extracted from these files and used for Bayes factor calculation. After this the temporal files are removed by the script. Before running this script with ADVI chosen as the model fitting method, the Stan model should be built using CmdStan. This can be done by running [*make* command](https://github.com/stan-dev/cmdstan/wiki/Getting-Started-with-CmdStan) for the Stan model file (.stan file) in the CmdStan folder. The result will be stored in the same folder where the original .stan file was located. This should be the same folder from which the *run_luxus.py* script is run. Please run the *make* command for all Stan models that will be used with ADVI.
 
 The script uses a precompiled Stan model if possible by pickling the compiled Stan model after first usage. Please see the detailed description on the [PyStan manual page](https://pystan.readthedocs.io/en/latest/avoiding_recompilation.html).
+
+With argument *-n VARIANCE_PRIOR* one can change the default gamma priors for the variance parameters to inverse-gamma priors. The hyperparameters should be chosen accordingly at the preanalysis phase.  
 
 ```
 usage: run_luxus.py [-h] -d INPUT_DATA -o OUTPUTFOLDER -i INPUTFOLDER -j
@@ -217,6 +221,11 @@ optional arguments:
                         File name (and path) for storing computation time. If
                         no file name is given the computation times will not
                         be stored into a file.
+  -n VARIANCE_PRIOR, --variance_prior VARIANCE_PRIOR
+                        Which prior distribution to use for variance
+                        parameters. Give value 0 (use gamma priors, default)
+                        or 1 (use inverse-gamma priors).
+
 
 ```
 
