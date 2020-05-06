@@ -1,4 +1,5 @@
-Folders containing the simulated data used in LuxUS: DNA methylation analysis using generalized linear mixed model with spatial correlation (Halla-aho and Lähdesmäki, 2020)
+Folders containing the simulated data used in LuxUS: DNA methylation analysis using generalized linear mixed 
+model with spatial correlation (Halla-aho and Lähdesmäki, 2020):
 
 -simulated_data_design_matrices
 -simulated_data_mub_1_4_minus1
@@ -14,8 +15,16 @@ File naming system:
 -cyt = in LuxUS sep. input files the input files contain only one cytosine, this is the cytosine index
 -diff = indicates whether the genomic region is differentially methylated (DMR, diff1) or not (non-DMR, diff0)
 
-The simulated_data_design_matrices folder contains the design matrices (in format accepted by RADMeth tool), one for each number of replicates.
+The simulated_data_design_matrices folder contains the design matrices (in format accepted by RADMeth tool), 
+one for each number of replicates.
 
-The folders simulated_data_mub* contain the simulated data, separated into LuxUS (HMC & ADVI), LuxUS sep., metilene and proportion table input formats. Proportion table format can be used with RADMeth and the provided DSS, bsseq and M3D tools expect the data be in this format. Each of the zip files contains data for 100 DMR regions and 950 non-DMR regions. For the 50% DMR-proportion setting presented in the paper DMR sets 0-99 and non-DMR set 0-99 were used. For the 5% DMR-proportion setting the DMR sets 0-49 and non-DMR set 0-949 were used. The LuxUS and LuxUS sep. input files have been pickled and they can be used with run_LuxUS.py script as they are.
+The folders simulated_data_mub* contain the simulated data, separated into LuxUS (HMC & ADVI), LuxUS sep.,
+metilene and proportion table input formats. Proportion table format can be used with RADMeth and the provided 
+DSS, bsseq and M3D tools expect the data be in this format. Each of the zip files contains data for 100 DMR 
+regions and 950 non-DMR regions. For the 50% DMR-proportion setting presented in the paper DMR sets 0-99 and 
+non-DMR set 0-99 were used. For the 5% DMR-proportion setting the DMR sets 0-49 and non-DMR set 0-949 were used. 
+The LuxUS and LuxUS sep. input files have been pickled and they can be used with run_LuxUS.py script as they are.
 
-The folder confounding_covariates uses the same file naming system and the input files have been divided by format in the same way, but there each data set has its own design matrix (as the continuous covariate is a random number and each data set is different.)
+The folder confounding_covariates uses the same file naming system and the input files have been divided by format
+in the same way, but there each data set has its own design matrix (as the continuous covariate is a random number 
+and each data set is different.)
