@@ -25,6 +25,11 @@ regions and 950 non-DMR regions. For the 50% DMR-proportion setting presented in
 non-DMR set 0-99 were used. For the 5% DMR-proportion setting the DMR sets 0-49 and non-DMR set 0-949 were used. 
 The LuxUS and LuxUS sep. input files have been pickled and they can be used with run_LuxUS.py script as they are.
 
+The genomic coordinates for the cytosines have been generated from range [1,1000]. The chomosome name "chr1" is 
+just a dummy name, and the genomic coordinates for the cytosines are not based on actual genomic coordinates. 
+Each of the genomic windows should be considered independent and there is no correlation between genomic windows
+with consecutive data set IDs.
+
 The folder confounding_covariates uses the same file naming system and the input files have been divided by format
-in the same way, but there each data set has its own design matrix (as the continuous covariate is a random number 
-and each data set is different.)
+in the same way, but there each data set has its own design matrix as the continuous covariate is a random number 
+and each data set is different in this sense.
