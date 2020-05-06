@@ -139,7 +139,7 @@ Test input data files and all the result files have been provided in the *data* 
 python prepare_data_for_luxus.py -i "$INPUT_FOLDER"/proportion_table_test_data_diff1.txt -d "$INPUT_FOLDER"/design_matrix_test_data_diff1.txt -o $OUTPUT_FOLDER -r 12 -t 1 -u 0.1 -y "$OUTPUT_FOLDER"/window_mean_coverage_test_data_diff1.txt -z "$OUTPUT_FOLDER"/window_number_of_cytosines_test_data_diff1.txt
 ```
 This command produces the following output files
-- Stan input file *input_for_luxus_1.txt*. As the test data covers only 10 cytosines in a 1000bp region, only one genomic window was found, resulting in one Stan input file. The file is stored in the folder defined in *$OUTPUT_FOLDER*. 
+- Stan input file *input_for_luxus_1.pickle*. As the test data covers only 10 cytosines in a 1000bp region, only one genomic window was found, resulting in one Stan input file. The file is stored in the folder defined in *$OUTPUT_FOLDER*. 
 - Window index file *proportion_table_test_data_diff1_in_analysis_indicator.txt*, where an indicator value is stored for each cytosine. Value 0 means that the cytosine was not included in a genomic window (or the window did not pass the preanalysis phase) and other values indicate the genomic window into which the cytosine belongs to. 
 - *window_mean_coverage_test_data_diff1.txt* which contains the mean coverages for each sample (over the genomic window) for each genomic window that passed the preanalysis filtering phase. 
 - *window_number_of_cytosines_test_data_diff1.txt* which contains the number of cytosines in the genomic window for each genomic window that passed the preanalysis filtering phase. 
@@ -229,9 +229,9 @@ optional arguments:
 
 ```
 
-Continuing the analysis of the test input data set, the produced Stan input file *input_for_luxus_1.txt* can now be given as input to the *run_luxus.py* script. The following command will run LuxUS analysis (with type 1 test) on the input data with default parameters and by saving the diagnostics plot
+Continuing the analysis of the test input data set, the produced Stan input file *input_for_luxus_1.pickle* can now be given as input to the *run_luxus.py* script. The following command will run LuxUS analysis (with type 1 test) on the input data with default parameters and by saving the diagnostics plot
 ```
-python run_luxus.py -d input_for_luxus_1.txt -o $OUTPUT_FOLDER -i $OUTPUT_FOLDER -j test_data_diff1_result.txt -x 1 -p 1 -w 1
+python run_luxus.py -d input_for_luxus_1.pickle -o $OUTPUT_FOLDER -i $OUTPUT_FOLDER -j test_data_diff1_result.txt -x 1 -p 1 -w 1
 ```
 This will produce an output file *test_data_diff1_result.txt* (stored in folder defined by argument *-o OUTPUTFOLDER*), where the computed Bayes factor for the input data is stored along with the window index defined by argument *-w WINDOW_INDEX*. The diagnostics plot *input_for_luxus_1_diagnostic_plots_HMC.png* is also saved in the same folder. Input file name (the Stan input file) should be given as argument *-d INPUT_DATA* and the input file folder as argument *-i INPUTFOLDER*. 
 
