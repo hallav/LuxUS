@@ -312,7 +312,7 @@ if __name__ == '__main__':
                                          'coordinates': coordinates_window[0:CYTOSINE_INDEX_WINDOW]}
     
                     #Saving the generated dataset
-                    output4=open("%s/input_for_luxus_%s.txt"%(options.output_folder,INCLUDED_IN_ANALYSIS_WINDOW_SAVED),'ab+')
+                    output4=open("%s/input_for_luxus_%s.pickle"%(options.output_folder,INCLUDED_IN_ANALYSIS_WINDOW_SAVED),'ab+')
                     pickle.dump(luxusv3_data,output4)
                     output4.close()
     
