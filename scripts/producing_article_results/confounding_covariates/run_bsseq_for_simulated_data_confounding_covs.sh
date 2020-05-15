@@ -20,8 +20,8 @@ module load r/3.5.0-python-2.7.14
 #4: Number of columns in proportion table = number of replicates
 
 
-INPUTFOLDER=/path/to/generated/data/
-OUTPUTFOLDER=/path/to/results/
+INPUTFOLDER=/path/to/generated/data
+OUTPUTFOLDER=/path/to/results
 DESIGNMATRIX="design_matrix"
 PTABLE="proportion_table"
 RESULTF="bsseq_results"

@@ -22,7 +22,7 @@ module load r/3.6.1-python3
 #5: Number of columns in proportion table = number of replicates
 
 
-INPUTFOLDER=/path/to/generated/data/
+INPUTFOLDER=/path/to/generated/data
 OUTPUTFOLDER=/path/to/results
 DESIGNMATRIX="design_matrix"
 PTABLE="proportion_table"
