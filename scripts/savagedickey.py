@@ -3,6 +3,8 @@
 import numpy
 import scipy.stats
 
+#The Savage-Dickey estimator computation is based on the implementation by Äijö et al. (2016) available at https://github.com/tare/LuxGLM (MIT lisence)
+
 def calculate_savagedickey(prior1_mean,prior1_cov,prior2_mean,prior2_cov,samples1,samples2):
   samples1_mean = numpy.mean(samples1,0)
   samples1_cov = numpy.cov(samples1,rowvar=0)
