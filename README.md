@@ -1,5 +1,5 @@
 # LuxUS
-*Lux*GLM *U*sing *S*patial correlation (LuxUS) is a tool for differential methylation analysis. The tool is based on LuxGLM by Äijö et al. (2016) [1]. LuxUS uses a  generalized linear mixed model with spatial correlation structure. The model parameters are fitted using probabilistic programming language Stan [2]. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
+*Lux*GLM *U*sing *S*patial correlation (LuxUS) is a tool for differential methylation analysis [5]. The tool is based on LuxGLM by Äijö et al. (2016) [1]. LuxUS uses a  generalized linear mixed model with spatial correlation structure. The model parameters are fitted using probabilistic programming language Stan [2]. Savage-Dickey Bayes factor estimates are used for statistical testing of a covariate of interest. LuxUS supports both continuous and binary variables. The model takes into account the experimental parameters, such as bisulfite conversion efficiency.
 
 The needed Python scripts and Stan model files for running the tool and example input and output files are stored in this GitHub repository.
 
@@ -366,4 +366,4 @@ python simulate_data_LuxUS.py -e $SIGMAE2 -q $READS -r $REPS -c $N_CYT -l $L -w 
 
 [4] Stan Development Team (2017) PyStan: the Python interface to Stan, Version 2.16.0.0.   http://mc-stan.org
 
-[5] Halla-aho, V. and Lähdesmäki, H. (2019) LuxUS: Detecting differential DNA methylation using generalized linear mixed model with spatial correlation structure. doi: https://doi.org/10.1101/536722
+[5] Halla-aho, V. and Lähdesmäki, H. (2020) LuxUS: DNA methylation analysis using generalized linear mixed model with spatial correlation. Bioinformatics, Volume 36, Issue 17, Pages 4535–4543, https://doi.org/10.1093/bioinformatics/btaa539
